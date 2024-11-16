@@ -147,6 +147,12 @@ export default function UserManagement() {
 
   const toggleUserStatus = (user: User) => {
     if (user.role !== "admin") {
+      console.log(
+        "Toggling status for user:",
+        user.name,
+        "Current status:",
+        user.isActive
+      ); // Debug log
       updateUserMutation.mutate({
         userId: user._id,
         data: { isActive: !user.isActive },

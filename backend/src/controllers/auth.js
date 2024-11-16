@@ -1,6 +1,6 @@
-import asyncHandler from 'express-async-handler';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import asyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -8,7 +8,7 @@ export const register = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error('User already exists');
+    throw new Error("User already exists");
   }
 
   const user = await User.create({
@@ -16,11 +16,12 @@ export const register = asyncHandler(async (req, res) => {
     email,
     password,
     role,
+    isActive: false,
   });
 
   if (user) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d',
+      expiresIn: "30d",
     });
 
     res.status(201).json({
@@ -30,11 +31,12 @@ export const register = asyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isActive: user.isActive,
       },
     });
   } else {
     res.status(400);
-    throw new Error('Invalid user data');
+    throw new Error("Invalid user data");
   }
 });
 
@@ -42,22 +44,29 @@ export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (user && (await user.matchPassword(password))) {
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d',
-    });
-
-    res.json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } else {
+  if (!user) {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error("Invalid email or password");
   }
+
+  const isMatch = await user.matchPassword(password);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error("Invalid email or password");
+  }
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
+
+  res.json({
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+    },
+  });
 });

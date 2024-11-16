@@ -19,8 +19,18 @@ export const protect = asyncHandler(async (req, res, next) => {
         throw new Error("User not found");
       }
 
-      const publicPaths = ["/api/auth/login", "/api/auth/register"];
-      if (!user.isActive && !publicPaths.includes(req.path)) {
+      const publicPaths = [
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/admin/users",
+        "/api/admin/users/",
+      ];
+
+      const isPublicPath = publicPaths.some((path) =>
+        req.path.startsWith(path)
+      );
+
+      if (!user.isActive && !isPublicPath) {
         res.status(403);
         throw new Error(
           "Account is not active. Please contact admin for activation."

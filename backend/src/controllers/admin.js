@@ -21,24 +21,35 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const updateUser = asyncHandler(async (req, res) => {
   const { hourlyRate, isActive } = req.body;
+  console.log("Updating user with data:", { hourlyRate, isActive }); // Debug log
 
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      ...(hourlyRate !== undefined && { hourlyRate }),
-      ...(isActive !== undefined && { isActive }),
-    },
-    { new: true }
-  )
-    .populate("languages", "name code")
-    .select("-password");
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...(hourlyRate !== undefined && { hourlyRate }),
+        ...(isActive !== undefined && { isActive }),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .populate("languages", "name code")
+      .select("-password");
 
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+
+    console.log("User updated successfully:", user); // Debug log
+    res.json(user);
+  } catch (error) {
+    console.error("Error updating user:", error); // Debug log
+    res.status(400);
+    throw new Error(error.message);
   }
-
-  res.json(user);
 });
 
 export const getClientCharges = asyncHandler(async (req, res) => {

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 
@@ -16,18 +15,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    if (token) {
-      const userRole = localStorage.getItem("userRole");
-      if (userRole === "interpreter") {
-        navigate("/interpreter");
-      } else {
-        navigate("/dashboard");
-      }
-    }
-  }, [token, navigate]);
 
   const {
     register,
@@ -43,15 +30,41 @@ export default function Login() {
       return response.data;
     },
     onSuccess: (data) => {
+      if (!data.user.isActive) {
+        toast.error(
+          "Your account is not active. Please contact admin for activation.",
+          { duration: 5000 }
+        );
+        return;
+      }
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("userRole", data.user.role);
-      toast.success("Login successful!");
-      navigate("/dashboard");
+      toast.success("Logged in successfully!");
+
+      // Redirect based on role
+      switch (data.user.role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "interpreter":
+          navigate("/interpreter");
+          break;
+        default:
+          navigate("/dashboard");
+      }
     },
-    onError: () => {
-      toast.error("Invalid email or password");
+    onError: (error: any) => {
+      console.error("Login error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to login. Please try again."
+      );
     },
   });
+
+  const onSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(data);
+  };
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -62,10 +75,7 @@ export default function Login() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form
-          className="space-y-6"
-          onSubmit={handleSubmit((data) => loginMutation.mutate(data))}
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -112,7 +122,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-indigo-400"
             >
               {loginMutation.isPending ? "Signing in..." : "Sign in"}
             </button>
@@ -120,12 +130,12 @@ export default function Login() {
         </form>
 
         <p className="mt-10 text-center text-sm text-gray-500">
-          Not a member?{" "}
+          Don't have an account?{" "}
           <a
             href="/register"
             className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
           >
-            Register now
+            Register here
           </a>
         </p>
       </div>
