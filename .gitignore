@@ -46,3 +46,4 @@ coverage/
 *.pid.lock
 .node_repl_history
 .yarn-integrity 
+.vercel

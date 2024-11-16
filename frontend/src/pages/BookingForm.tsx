@@ -10,8 +10,8 @@ import axios from "../lib/axios";
 const bookingSchema = z.object({
   languageId: z.string().min(1, "Please select a language"),
   date: z.string().min(1, "Please select a date"),
-  startTime: z.string().min(1, "Please select a time slot"),
-  endTime: z.string().min(1, "Please select a time slot"),
+  startTime: z.string().min(1, "Please select a start time"),
+  endTime: z.string().min(1, "Please select an end time"),
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
@@ -19,6 +19,7 @@ type BookingFormData = z.infer<typeof bookingSchema>;
 export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
@@ -33,10 +34,12 @@ export default function BookingForm() {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
+    watch,
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
   });
+
+  const selectedStartTime = watch("startTime");
 
   const { data: languages } = useQuery({
     queryKey: ["availableLanguages"],
@@ -46,16 +49,29 @@ export default function BookingForm() {
     },
   });
 
-  const { data: timeSlots } = useQuery({
-    queryKey: ["timeSlots", selectedDate],
+  const { data: bookedSlots } = useQuery({
+    queryKey: ["bookedSlots", selectedDate],
     queryFn: async () => {
       const { data } = await axios.get(
-        `/api/bookings/available-slots?date=${selectedDate}`
+        `/api/bookings/booked-slots?date=${selectedDate}`
       );
       return data;
     },
     enabled: !!selectedDate,
   });
+
+  useEffect(() => {
+    // Generate available times from 9 AM to 5 PM
+    const times = [];
+    for (let hour = 9; hour <= 17; hour++) {
+      const timeString = `${hour.toString().padStart(2, "0")}:00`;
+      // Check if the time is not in bookedSlots
+      if (!bookedSlots?.includes(timeString)) {
+        times.push(timeString);
+      }
+    }
+    setAvailableTimes(times);
+  }, [bookedSlots]);
 
   const bookingMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
@@ -76,13 +92,22 @@ export default function BookingForm() {
     },
   });
 
-  const handleTimeSlotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const [startTime, endTime] = e.target.value.split("-");
-    setValue("startTime", startTime.trim());
-    setValue("endTime", endTime.trim());
-  };
-
   const onSubmit = (data: BookingFormData) => {
+    // Validate that end time is after start time
+    const startHour = parseInt(data.startTime.split(":")[0]);
+    const endHour = parseInt(data.endTime.split(":")[0]);
+
+    if (endHour <= startHour) {
+      toast.error("End time must be after start time");
+      return;
+    }
+
+    // Validate that booking is not longer than 3 hours
+    if (endHour - startHour > 3) {
+      toast.error("Booking cannot be longer than 3 hours");
+      return;
+    }
+
     bookingMutation.mutate(data);
   };
 
@@ -121,7 +146,7 @@ export default function BookingForm() {
             type="date"
             {...register("date")}
             onChange={(e) => setSelectedDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]} // Prevent past dates
+            min={new Date().toISOString().split("T")[0]}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
           {errors.date && (
@@ -130,31 +155,76 @@ export default function BookingForm() {
         </div>
 
         {selectedDate && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Time Slot
-            </label>
-            <select
-              onChange={handleTimeSlotChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="">Select a time slot</option>
-              {timeSlots?.map((slot: any) => (
-                <option
-                  key={slot.id}
-                  value={`${slot.startTime}-${slot.endTime}`}
-                >
-                  {slot.startTime} - {slot.endTime}
-                </option>
-              ))}
-            </select>
-            {(errors.startTime || errors.endTime) && (
-              <p className="mt-1 text-sm text-red-600">
-                Please select a time slot
-              </p>
-            )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Start Time
+              </label>
+              <select
+                {...register("startTime")}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value="">Select start time</option>
+                {availableTimes.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                ))}
+              </select>
+              {errors.startTime && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.startTime.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                End Time
+              </label>
+              <select
+                {...register("endTime")}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                disabled={!selectedStartTime}
+              >
+                <option value="">Select end time</option>
+                {selectedStartTime &&
+                  availableTimes
+                    .filter((time) => {
+                      const startHour = parseInt(
+                        selectedStartTime.split(":")[0]
+                      );
+                      const currentHour = parseInt(time.split(":")[0]);
+                      return (
+                        currentHour > startHour && currentHour <= startHour + 3
+                      );
+                    })
+                    .map((time) => (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    ))}
+              </select>
+              {errors.endTime && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.endTime.message}
+                </p>
+              )}
+            </div>
           </div>
         )}
+
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-700 mb-2">
+            Booking Guidelines
+          </h3>
+          <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+            <li>Bookings must be between 1 and 3 hours</li>
+            <li>Available hours are from 9:00 AM to 5:00 PM</li>
+            <li>End time must be after start time</li>
+            <li>Bookings cannot overlap with existing appointments</li>
+          </ul>
+        </div>
 
         <button
           type="submit"

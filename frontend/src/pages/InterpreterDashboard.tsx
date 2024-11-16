@@ -133,6 +133,30 @@ export default function InterpreterDashboard() {
     },
   });
 
+  const updateBookingStatusMutation = useMutation({
+    mutationFn: async ({
+      bookingId,
+      status,
+    }: {
+      bookingId: string;
+      status: string;
+    }) => {
+      const response = await axios.patch(`/api/bookings/${bookingId}/status`, {
+        status,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Booking status updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["interpreterBookings"] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.message || "Failed to update booking status"
+      );
+    },
+  });
+
   const handleAddLanguage = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedLanguage) {
@@ -157,6 +181,10 @@ export default function InterpreterDashboard() {
       });
     }
     setSelectedBookingId(null);
+  };
+
+  const handleCompleteBooking = (bookingId: string) => {
+    updateBookingStatusMutation.mutate({ bookingId, status: "completed" });
   };
 
   // Filter out already selected languages from the dropdown
@@ -273,6 +301,14 @@ export default function InterpreterDashboard() {
                           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                         >
                           Accept Booking
+                        </button>
+                      )}
+                      {booking.status === "accepted" && (
+                        <button
+                          onClick={() => handleCompleteBooking(booking._id)}
+                          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        >
+                          Mark as Completed
                         </button>
                       )}
                     </div>

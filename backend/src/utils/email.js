@@ -37,22 +37,61 @@ export const sendBookingNotification = async (interpreters, booking) => {
   }
 };
 
-export const sendBookingStatusUpdate = async (booking) => {
+export const sendBookingStatusUpdate = async (booking, status) => {
   try {
+    let subject, html;
+
+    switch (status) {
+      case "cancelled":
+        subject = "Booking Cancelled";
+        html = `
+          <h2>Booking Cancelled</h2>
+          <p>A booking has been cancelled:</p>
+          <p>Date: ${new Date(booking.date).toLocaleDateString()}</p>
+          <p>Time: ${booking.startTime} - ${booking.endTime}</p>
+          <p>Language: ${booking.language.name}</p>
+          <p>Client: ${booking.client.name}</p>
+        `;
+        break;
+      case "completed":
+        subject = "Booking Completed";
+        html = `
+          <h2>Booking Completed</h2>
+          <p>Your translation session has been completed.</p>
+          <p>Date: ${new Date(booking.date).toLocaleDateString()}</p>
+          <p>Time: ${booking.startTime} - ${booking.endTime}</p>
+          <p>Language: ${booking.language.name}</p>
+          <p>Interpreter: ${booking.interpreter.name}</p>
+          ${
+            booking.financials
+              ? `
+            <p>Duration: ${booking.financials.hours} hours</p>
+            <p>Rate: £${booking.financials.rate}/hour</p>
+            <p>Total Amount: £${booking.financials.amount}</p>
+          `
+              : ""
+          }
+        `;
+        break;
+      default:
+        subject = "Booking Status Update";
+        html = `
+          <h2>Booking Status Updated</h2>
+          <p>Your booking status has been updated to: ${status}</p>
+          <p>Date: ${new Date(booking.date).toLocaleDateString()}</p>
+          <p>Time: ${booking.startTime} - ${booking.endTime}</p>
+          <p>Language: ${booking.language.name}</p>
+        `;
+    }
+
     const result = await resend.emails.send({
       from: "Expert Language <onboarding@resend.dev>",
-      to: booking.client.email,
-      subject: "Your Booking Has Been Accepted",
-      html: `
-        <h2>Booking Accepted</h2>
-        <p>Your translation booking has been accepted.</p>
-        <p>Date: ${new Date(booking.date).toLocaleDateString()}</p>
-        <p>Time: ${booking.startTime} - ${booking.endTime}</p>
-        <p>Language: ${booking.language.name}</p>
-        <p>Meeting Link: <a href="${booking.meetingLink}">${
-        booking.meetingLink
-      }</a></p>
-      `,
+      to:
+        status === "cancelled"
+          ? booking.interpreter.email
+          : booking.client.email,
+      subject,
+      html,
     });
     console.log("Status update email sent:", result);
   } catch (error) {

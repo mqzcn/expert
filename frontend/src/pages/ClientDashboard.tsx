@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 import Calendar from "../components/Calendar";
 
@@ -20,6 +21,8 @@ interface Booking {
 }
 
 export default function ClientDashboard() {
+  const queryClient = useQueryClient();
+
   const { data: bookings, isLoading } = useQuery<Booking[]>({
     queryKey: ["userBookings"],
     queryFn: async () => {
@@ -27,6 +30,28 @@ export default function ClientDashboard() {
       return response.data;
     },
   });
+
+  const cancelBookingMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await axios.patch(`/api/bookings/${bookingId}/status`, {
+        status: "cancelled",
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Booking cancelled successfully");
+      queryClient.invalidateQueries({ queryKey: ["userBookings"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to cancel booking");
+    },
+  });
+
+  const handleCancelBooking = (bookingId: string) => {
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      cancelBookingMutation.mutate(bookingId);
+    }
+  };
 
   const calendarEvents =
     bookings?.map((booking) => {
@@ -67,7 +92,7 @@ export default function ClientDashboard() {
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Upcoming Sessions</h2>
         <div className="space-y-4">
-          {bookings?.map((booking: any) => (
+          {bookings?.map((booking) => (
             <div key={booking._id} className="border rounded-lg p-4 bg-gray-50">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -86,22 +111,33 @@ export default function ClientDashboard() {
                     {booking.startTime} - {booking.endTime}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <p
-                    className={`text-gray-900 ${
-                      booking.status === "pending"
-                        ? "text-yellow-600"
-                        : booking.status === "accepted"
-                        ? "text-green-600"
-                        : booking.status === "completed"
-                        ? "text-blue-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {booking.status.charAt(0).toUpperCase() +
-                      booking.status.slice(1)}
-                  </p>
+                <div className="col-span-2 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Status</p>
+                    <p
+                      className={`text-gray-900 ${
+                        booking.status === "pending"
+                          ? "text-yellow-600"
+                          : booking.status === "accepted"
+                          ? "text-green-600"
+                          : booking.status === "completed"
+                          ? "text-blue-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {booking.status.charAt(0).toUpperCase() +
+                        booking.status.slice(1)}
+                    </p>
+                  </div>
+                  {(booking.status === "pending" ||
+                    booking.status === "accepted") && (
+                    <button
+                      onClick={() => handleCancelBooking(booking._id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                      Cancel Booking
+                    </button>
+                  )}
                 </div>
                 {booking.meetingLink && (
                   <div className="col-span-2">

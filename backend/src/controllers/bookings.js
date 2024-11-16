@@ -138,3 +138,109 @@ export const updateBooking = asyncHandler(async (req, res) => {
 
   res.json(updatedBooking);
 });
+
+export const getBookedSlots = asyncHandler(async (req, res) => {
+  const { date } = req.query;
+
+  // Get all bookings for the selected date
+  const bookings = await Booking.find({
+    date,
+    status: { $ne: "cancelled" },
+  });
+
+  // Extract all booked time slots
+  const bookedSlots = new Set();
+  bookings.forEach((booking) => {
+    const startHour = parseInt(booking.startTime);
+    const endHour = parseInt(booking.endTime);
+
+    // Add all hours between start and end to booked slots
+    for (let hour = startHour; hour < endHour; hour++) {
+      bookedSlots.add(`${hour.toString().padStart(2, "0")}:00`);
+    }
+  });
+
+  res.json(Array.from(bookedSlots));
+});
+
+export const updateBookingStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  const booking = await Booking.findById(req.params.id)
+    .populate("client", "name email")
+    .populate("interpreter", "name email")
+    .populate("language", "name code");
+
+  if (!booking) {
+    res.status(404);
+    throw new Error("Booking not found");
+  }
+
+  // Check permissions
+  const userRole = req.user.role;
+  const isClient = req.user._id.equals(booking.client._id);
+  const isInterpreter =
+    booking.interpreter && req.user._id.equals(booking.interpreter._id);
+
+  // Validate status transitions
+  if (userRole === "client") {
+    // Clients can only cancel bookings
+    if (status !== "cancelled") {
+      res.status(403);
+      throw new Error("Clients can only cancel bookings");
+    }
+    // Can't cancel completed or already cancelled bookings
+    if (["completed", "cancelled"].includes(booking.status)) {
+      res.status(400);
+      throw new Error("Cannot cancel completed or already cancelled bookings");
+    }
+  } else if (userRole === "interpreter" && isInterpreter) {
+    // Interpreters can only update to completed
+    if (status !== "completed") {
+      res.status(403);
+      throw new Error("Interpreters can only mark bookings as completed");
+    }
+    // Can only complete accepted bookings
+    if (booking.status !== "accepted") {
+      res.status(400);
+      throw new Error("Can only complete accepted bookings");
+    }
+  } else if (userRole !== "admin") {
+    res.status(403);
+    throw new Error("Not authorized to update this booking");
+  }
+
+  booking.status = status;
+  await booking.save();
+
+  // Calculate financials if booking is completed
+  if (status === "completed") {
+    const startHour = parseInt(booking.startTime);
+    const endHour = parseInt(booking.endTime);
+    const hours = endHour - startHour;
+    const rate = booking.interpreter.hourlyRate || 0;
+    const amount = hours * rate;
+
+    // You might want to store this in a separate transactions collection
+    // or add it to the booking document
+    booking.financials = {
+      hours,
+      rate,
+      amount,
+      calculatedAt: new Date(),
+    };
+    await booking.save();
+  }
+
+  // Send notifications
+  if (status === "cancelled") {
+    // Notify interpreter if booking was accepted
+    if (booking.interpreter) {
+      await sendBookingStatusUpdate(booking, "cancelled");
+    }
+  } else if (status === "completed") {
+    // Notify client
+    await sendBookingStatusUpdate(booking, "completed");
+  }
+
+  res.json(booking);
+});

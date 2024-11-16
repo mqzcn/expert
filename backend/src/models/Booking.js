@@ -34,6 +34,12 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
     meetingLink: String,
+    financials: {
+      hours: Number,
+      rate: Number,
+      amount: Number,
+      calculatedAt: Date,
+    },
   },
   {
     timestamps: true,

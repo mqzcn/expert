@@ -123,10 +123,10 @@ export default function AdminDashboard() {
   // Calculate statistics
   const statistics = {
     totalBookings: filteredBookings?.length || 0,
-    completedBookings: filteredBookings?.filter((b) => b.status === "completed")
-      .length,
-    pendingBookings: filteredBookings?.filter((b) => b.status === "pending")
-      .length,
+    completedBookings:
+      filteredBookings?.filter((b) => b.status === "completed").length || 0,
+    pendingBookings:
+      filteredBookings?.filter((b) => b.status === "pending").length || 0,
     activeInterpreters: new Set(
       filteredBookings
         ?.filter((b) => b.interpreter)
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
 
       {/* Calendar View */}
       <div className="mb-8">
-        <Calendar events={calendarEvents} />
+        <Calendar events={calendarEvents || []} />
       </div>
 
       {/* Bookings List */}
