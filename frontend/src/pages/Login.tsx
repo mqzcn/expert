@@ -40,6 +40,7 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("userRole", data.user.role);
+      localStorage.setItem("name", data.user.name);
       toast.success("Logged in successfully!");
 
       // Redirect based on role

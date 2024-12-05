@@ -50,6 +50,7 @@ export default function Register() {
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("userRole", data.user.role);
+      localStorage.setItem("name", data.user.name);
       toast.success("Registration successful!");
       navigate("/dashboard");
     },

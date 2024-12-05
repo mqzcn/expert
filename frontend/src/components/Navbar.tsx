@@ -12,10 +12,12 @@ export default function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("userRole");
+  const name = localStorage.getItem("name");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("name");
     navigate("/login");
   };
 
@@ -62,12 +64,17 @@ export default function Navbar() {
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 {token ? (
-                  <button
-                    onClick={handleLogout}
-                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                  >
-                    Logout
-                  </button>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm text-gray-700">
+                      Logged in as {name}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-x-4">
                     <Link
