@@ -146,6 +146,20 @@ export default function BookingForm() {
     }));
   };
 
+  const generateTimeSlots = () => {
+    const times: string[] = []; // Explicitly type the array as string[]
+    let hour = 9; // Start at 9 AM
+
+    while (hour < 17) {
+      // Until 5 PM
+      const timeString = `${hour.toString().padStart(2, "0")}:00`;
+      times.push(timeString);
+      hour++;
+    }
+
+    return times;
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Book a Translation Service</h1>
