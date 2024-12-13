@@ -34,6 +34,16 @@ interface FinancialReport {
   bookingCount: number;
 }
 
+type FinanceRecord = {
+  date: string;
+  interpreter?: string;
+  client?: string;
+  language: string;
+  hours: number;
+  rate: number;
+  amount: number;
+};
+
 export default function UserManagement() {
   const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<
