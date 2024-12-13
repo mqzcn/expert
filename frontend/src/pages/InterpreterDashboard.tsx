@@ -15,7 +15,7 @@ interface InterpreterProfile {
   _id: string;
   name: string;
   email: string;
-  languages: Language[];
+  languages?: Language[];
 }
 
 interface Booking {
@@ -375,7 +375,7 @@ export default function InterpreterDashboard() {
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">My Languages</h2>
         <div className="space-y-2">
-          {interpreterProfile?.languages?.length > 0 ? (
+          {(interpreterProfile?.languages?.length ?? 0) > 0 ? (
             <div className="grid gap-4">
               {interpreterProfile?.languages?.map((lang) => (
                 <div
