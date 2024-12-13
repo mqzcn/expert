@@ -1,6 +1,17 @@
 // Add missing module declarations here
 declare module "react-big-calendar" {
-  export * from "react-big-calendar";
+  import {
+    Calendar,
+    CalendarProps,
+    Views,
+    dateFnsLocalizer,
+  } from "react-big-calendar";
+  export default Calendar;
+  export { CalendarProps, Views, dateFnsLocalizer };
+}
+
+declare module "react-big-calendar/lib/localizers/date-fns" {
+  export const dateFnsLocalizer: any;
 }
 
 // Add other missing module declarations as needed
