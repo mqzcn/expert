@@ -16,11 +16,24 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>;
 
+interface FormData {
+  language: string;
+  date: string;
+  startTime: string;
+  hours: number;
+}
+
 export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    language: '',
+    date: '',
+    startTime: '',
+    hours: 1
+  });
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
@@ -110,6 +123,14 @@ export default function BookingForm() {
     }
 
     bookingMutation.mutate(data);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
