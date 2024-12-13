@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 import MeetingLinkModal from "../components/MeetingLinkModal";
 import Calendar from "../components/Calendar";
+import { type Event as CalendarEvent } from "react-big-calendar/lib/index";
 
 interface Language {
   _id: string;
@@ -20,15 +21,32 @@ interface InterpreterProfile {
 
 interface Booking {
   _id: string;
+  date: string;
+  startTime: string;
+  hours: number;
   client: {
     name: string;
     email: string;
   };
-  language: Language;
-  date: string;
-  startTime: string;
-  endTime: string;
+  interpreter?: {
+    name: string;
+    email: string;
+  };
+  language: {
+    name: string;
+  };
   status: "pending" | "accepted" | "completed" | "cancelled";
+  meetingLink?: string;
+}
+
+interface CalendarBookingEvent extends CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  status: Booking["status"];
+  client: Booking["client"];
+  language: Booking["language"];
   meetingLink?: string;
 }
 
@@ -62,11 +80,13 @@ export default function InterpreterDashboard() {
       },
     });
 
-  const { data: bookings, isLoading: loadingBookings } = useQuery<Booking[]>({
-    queryKey: ["interpreterBookings"],
+  const { data: bookings = [], isLoading: loadingBookings } = useQuery<
+    Booking[]
+  >({
+    queryKey: ["bookings"],
     queryFn: async () => {
-      const response = await axios.get("/api/bookings/interpreter");
-      return response.data;
+      const { data } = await axios.get("/api/bookings");
+      return data;
     },
   });
 
@@ -129,7 +149,7 @@ export default function InterpreterDashboard() {
     },
     onSuccess: () => {
       toast.success("Booking accepted successfully");
-      queryClient.invalidateQueries({ queryKey: ["interpreterBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to accept booking");
@@ -151,7 +171,7 @@ export default function InterpreterDashboard() {
     },
     onSuccess: () => {
       toast.success("Booking status updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["interpreterBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
     },
     onError: (error: any) => {
       toast.error(
@@ -196,34 +216,35 @@ export default function InterpreterDashboard() {
       (lang) => !interpreterProfile?.languages?.some((l) => l._id === lang._id)
     ) || [];
 
-  const calendarEvents =
-    bookings?.map((booking) => {
-      const bookingDate = new Date(booking.date);
-      const [startHour] = booking.startTime.split(":");
-      const [endHour] = booking.endTime.split(":");
-
-      const start = new Date(bookingDate);
-      start.setHours(parseInt(startHour), 0, 0);
-
-      const end = new Date(bookingDate);
-      end.setHours(parseInt(endHour), 0, 0);
-
-      return {
-        id: booking._id,
-        title: `${booking.language.name} Translation - ${booking.client.name}`,
-        start,
-        end,
-        status: booking.status,
-        client: booking.client,
-        language: booking.language,
-        meetingLink: booking.meetingLink,
-      };
-    }) || [];
+  const calendarEvents: CalendarBookingEvent[] = (bookings || []).map(
+    (booking) => ({
+      id: booking._id,
+      title: `${booking.language.name} - ${booking.client.name}`,
+      start: new Date(booking.date + "T" + booking.startTime),
+      end: new Date(
+        new Date(booking.date + "T" + booking.startTime).getTime() +
+          booking.hours * 60 * 60 * 1000
+      ),
+      status: booking.status,
+      client: booking.client,
+      language: booking.language,
+      meetingLink: booking.meetingLink,
+    })
+  );
 
   const handleEventClick = (event: any) => {
     if (event.status === "pending") {
       handleAcceptBooking(event.id);
     }
+  };
+
+  // Helper function to calculate end time
+  const getEndTime = (booking: Booking) => {
+    const [hours, minutes] = booking.startTime.split(":").map(Number);
+    const endHours = hours + booking.hours;
+    return `${endHours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   if (loadingLanguages || loadingProfile || loadingBookings) {
@@ -274,7 +295,7 @@ export default function InterpreterDashboard() {
                   <div>
                     <p className="text-sm font-medium text-gray-500">Time</p>
                     <p className="text-gray-900">
-                      {booking.startTime} - {booking.endTime}
+                      {booking.startTime} - {getEndTime(booking)}
                     </p>
                   </div>
                   <div className="col-span-2">
