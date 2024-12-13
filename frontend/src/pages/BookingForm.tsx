@@ -23,17 +23,25 @@ interface FormData {
   hours: number;
 }
 
+interface Language {
+  _id: string;
+  name: string;
+  code: string;
+}
+
 export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    language: '',
-    date: '',
-    startTime: '',
-    hours: 1
+    language: "",
+    date: "",
+    startTime: "",
+    hours: 1,
   });
+
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
@@ -125,11 +133,16 @@ export default function BookingForm() {
     bookingMutation.mutate(data);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    if (name === "language") {
+      setSelectedLanguages([value]);
+    }
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
