@@ -377,7 +377,7 @@ export default function InterpreterDashboard() {
         <div className="space-y-2">
           {interpreterProfile?.languages?.length > 0 ? (
             <div className="grid gap-4">
-              {interpreterProfile.languages.map((lang) => (
+              {interpreterProfile?.languages?.map((lang) => (
                 <div
                   key={lang._id}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
