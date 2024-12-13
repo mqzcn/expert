@@ -15,7 +15,7 @@ interface InterpreterProfile {
   _id: string;
   name: string;
   email: string;
-  languages?: Language[];
+  languages: Language[];
 }
 
 interface Booking {
@@ -52,10 +52,13 @@ export default function InterpreterDashboard() {
 
   const { data: interpreterProfile, isLoading: loadingProfile } =
     useQuery<InterpreterProfile>({
-      queryKey: ["interpreterProfile"],
+      queryKey: ["interpreter-profile"],
       queryFn: async () => {
-        const response = await axios.get("/api/interpreters/profile");
-        return response.data;
+        const { data } = await axios.get("/api/interpreters/profile");
+        return {
+          ...data,
+          languages: data.languages || [],
+        };
       },
     });
 
@@ -375,9 +378,9 @@ export default function InterpreterDashboard() {
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">My Languages</h2>
         <div className="space-y-2">
-          {(interpreterProfile?.languages?.length ?? 0) > 0 ? (
+          {interpreterProfile?.languages.length > 0 ? (
             <div className="grid gap-4">
-              {interpreterProfile?.languages?.map((lang) => (
+              {interpreterProfile?.languages.map((lang) => (
                 <div
                   key={lang._id}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
