@@ -1,10 +1,14 @@
-import BigCalendar from "react-big-calendar";
+import {
+  Views,
+  Calendar as BigCalendar,
+  type Event,
+} from "react-big-calendar/lib/index.js";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import { dateFnsLocalizer } from "react-big-calendar/lib/localizers/date-fns";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import enUS from "date-fns/locale/en-US";
 
 const locales = {
@@ -37,7 +41,7 @@ interface CalendarProps {
   isInterpreter?: boolean;
 }
 
-export default function Calendar({
+export default function CalendarComponent({
   events,
   onEventClick,
   isInterpreter,
@@ -79,27 +83,26 @@ export default function Calendar({
   };
 
   return (
-    <div className="h-[600px] bg-white p-4 rounded-lg shadow">
-      <BigCalendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: "100%" }}
-        eventPropGetter={eventStyleGetter}
-        formats={formats}
-        onSelectEvent={(event: CalendarEvent) => onEventClick?.(event)}
-        tooltipAccessor={(event: CalendarEvent) => `
-          ${event.title}
-          ${event.client ? `\nClient: ${event.client.name}` : ""}
-          ${event.interpreter ? `\nInterpreter: ${event.interpreter.name}` : ""}
-          ${event.language ? `\nLanguage: ${event.language.name}` : ""}
-          \nStatus: ${
-            event.status.charAt(0).toUpperCase() + event.status.slice(1)
-          }
-        `}
-        views={["month", "week", "day"]}
-      />
-    </div>
+    <BigCalendar
+      localizer={localizer}
+      defaultView={Views.MONTH}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      style={{ height: "100%" }}
+      eventPropGetter={eventStyleGetter}
+      formats={formats}
+      onSelectEvent={(event: CalendarEvent) => onEventClick?.(event)}
+      tooltipAccessor={(event: CalendarEvent) => `
+        ${event.title}
+        ${event.client ? `\nClient: ${event.client.name}` : ""}
+        ${event.interpreter ? `\nInterpreter: ${event.interpreter.name}` : ""}
+        ${event.language ? `\nLanguage: ${event.language.name}` : ""}
+        \nStatus: ${
+          event.status.charAt(0).toUpperCase() + event.status.slice(1)
+        }
+      `}
+      views={["month", "week", "day"]}
+    />
   );
 }
