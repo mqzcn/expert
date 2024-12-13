@@ -6,8 +6,7 @@
     "dev": "node src/index.js",
     "start": "node src/index.js",
     "seed:admin": "node src/utils/seedAdmin.js",
-    "build": "npm install && npm run compile",
-    "compile": "babel src -d dist"
+    "build": "npm install && mkdir -p dist && cp -r src/* dist/"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
