@@ -32,8 +32,6 @@ interface Language {
 export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [formData, setFormData] = useState<FormData>({
     language: "",
     date: "",
@@ -82,18 +80,20 @@ export default function BookingForm() {
     enabled: !!selectedDate,
   });
 
-  useEffect(() => {
-    // Generate available times from 9 AM to 5 PM
-    const times = [];
-    for (let hour = 9; hour <= 17; hour++) {
+  const generateTimeSlots = () => {
+    const times: string[] = [];
+    let hour = 9;
+
+    while (hour < 17) {
       const timeString = `${hour.toString().padStart(2, "0")}:00`;
-      // Check if the time is not in bookedSlots
-      if (!bookedSlots?.includes(timeString)) {
-        times.push(timeString);
-      }
+      times.push(timeString);
+      hour++;
     }
-    setAvailableTimes(times);
-  }, [bookedSlots]);
+
+    return times;
+  };
+
+  const [timeSlots, setTimeSlots] = useState<string[]>(generateTimeSlots());
 
   const bookingMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
@@ -138,26 +138,12 @@ export default function BookingForm() {
   ) => {
     const { name, value } = e.target;
     if (name === "language") {
-      setSelectedLanguage(value);
+      setSelectedLanguages([value]);
     }
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
-
-  const generateTimeSlots = () => {
-    const times: string[] = []; // Explicitly type the array as string[]
-    let hour = 9; // Start at 9 AM
-
-    while (hour < 17) {
-      // Until 5 PM
-      const timeString = `${hour.toString().padStart(2, "0")}:00`;
-      times.push(timeString);
-      hour++;
-    }
-
-    return times;
   };
 
   return (
@@ -214,7 +200,7 @@ export default function BookingForm() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
                 <option value="">Select start time</option>
-                {availableTimes.map((time) => (
+                {timeSlots.map((time) => (
                   <option key={time} value={time}>
                     {time}
                   </option>
@@ -238,7 +224,7 @@ export default function BookingForm() {
               >
                 <option value="">Select end time</option>
                 {selectedStartTime &&
-                  availableTimes
+                  timeSlots
                     .filter((time) => {
                       const startHour = parseInt(
                         selectedStartTime.split(":")[0]
