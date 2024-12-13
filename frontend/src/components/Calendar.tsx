@@ -1,102 +1,108 @@
-import { Calendar as BigCalendar, type Event } from "react-big-calendar";
+import {
+  Views,
+  Calendar as BigCalendar,
+  type Event,
+} from "react-big-calendar/lib/index.js";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { dateFnsLocalizer } from "react-big-calendar/lib/localizers/date-fns";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
-import { enUS } from "date-fns/locale";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import enUS from "date-fns/locale/en-US";
 
-interface Booking {
-  _id: string;
-  date: string;
-  startTime: string;
-  hours: number;
-  client: {
-    name: string;
-    email: string;
-  };
-  interpreter?: {
-    name: string;
-    email: string;
-  };
-  language: {
-    name: string;
-  };
-  status: string;
-  meetingLink?: string;
-}
+const locales = {
+  "en-US": enUS,
+};
 
-interface CalendarEvent extends Event {
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+interface CalendarEvent {
+  id: string;
   title: string;
   start: Date;
   end: Date;
-  resource?: Booking;
+  status: "pending" | "accepted" | "completed" | "cancelled";
+  client?: { name: string; email: string };
+  interpreter?: { name: string; email: string };
+  language: { name: string; code: string };
+  meetingLink?: string;
 }
 
-const localizer = {
-  format: (date: Date, formatStr: string) =>
-    format(date, formatStr, { locale: enUS }),
-  parse: (str: string, formatStr: string) =>
-    parse(str, formatStr, new Date(), { locale: enUS }),
-  startOfWeek: (date: Date) => startOfWeek(date, { locale: enUS }),
-  getDay: (date: Date) => getDay(date),
-  locales: {
-    "en-US": enUS,
-  },
-};
+interface CalendarProps {
+  events: CalendarEvent[];
+  onEventClick?: (event: CalendarEvent) => void;
+  isInterpreter?: boolean;
+}
 
-export default function CalendarComponent() {
-  const navigate = useNavigate();
-  const userRole = localStorage.getItem("userRole");
-  const isInterpreter = userRole === "interpreter";
-
-  const { data: bookings = [] } = useQuery<Booking[]>({
-    queryKey: ["bookings"],
-    queryFn: async () => {
-      const { data } = await axios.get("/api/bookings");
-      return data;
-    },
-  });
-
-  const events: CalendarEvent[] = bookings.map((booking) => {
-    const [hours, minutes] = booking.startTime.split(":").map(Number);
-    const start = new Date(booking.date);
-    start.setHours(hours, minutes);
-
-    const end = new Date(start);
-    end.setHours(start.getHours() + booking.hours);
+export default function CalendarComponent({
+  events,
+  onEventClick,
+  isInterpreter,
+}: CalendarProps) {
+  const eventStyleGetter = (event: CalendarEvent) => {
+    let backgroundColor = "";
+    switch (event.status) {
+      case "pending":
+        backgroundColor = "#FCD34D"; // yellow
+        break;
+      case "accepted":
+        backgroundColor = "#34D399"; // green
+        break;
+      case "completed":
+        backgroundColor = "#60A5FA"; // blue
+        break;
+      case "cancelled":
+        backgroundColor = "#EF4444"; // red
+        break;
+      default:
+        backgroundColor = "#6B7280"; // gray
+    }
 
     return {
-      title: `${booking.language.name} - ${
-        isInterpreter
-          ? booking.client.name
-          : booking.interpreter?.name || "Unassigned"
-      }`,
-      start,
-      end,
-      resource: booking,
+      style: {
+        backgroundColor,
+        borderRadius: "4px",
+        opacity: 0.8,
+        color: "white",
+        border: "none",
+        display: "block",
+      },
     };
-  });
+  };
 
-  const handleSelectEvent = (event: CalendarEvent) => {
-    if (event.resource?._id) {
-      navigate(`/bookings/${event.resource._id}`);
-    }
+  const formats = {
+    eventTimeRangeFormat: () => "", // Hide the time range in month view
+    timeGutterFormat: (date: Date) => format(date, "HH:mm"), // 24-hour format
   };
 
   return (
-    <div className="h-[600px]">
-      <BigCalendar
-        localizer={localizer as any}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        onSelectEvent={handleSelectEvent}
-        views={["month", "week", "day"]}
-      />
-    </div>
+    <BigCalendar
+      localizer={localizer}
+      defaultView={Views.MONTH}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      style={{ height: "100%" }}
+      eventPropGetter={eventStyleGetter}
+      formats={formats}
+      onSelectEvent={(event: CalendarEvent) => onEventClick?.(event)}
+      tooltipAccessor={(event: CalendarEvent) => `
+        ${event.title}
+        ${event.client ? `\nClient: ${event.client.name}` : ""}
+        ${event.interpreter ? `\nInterpreter: ${event.interpreter.name}` : ""}
+        ${event.language ? `\nLanguage: ${event.language.name}` : ""}
+        \nStatus: ${
+          event.status.charAt(0).toUpperCase() + event.status.slice(1)
+        }
+      `}
+      views={["month", "week", "day"]}
+    />
   );
 }
