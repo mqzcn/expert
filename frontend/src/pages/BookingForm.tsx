@@ -20,6 +20,7 @@ export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
