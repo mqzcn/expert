@@ -33,7 +33,7 @@ export default function BookingForm() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [formData, setFormData] = useState<FormData>({
     language: "",
     date: "",
@@ -138,7 +138,7 @@ export default function BookingForm() {
   ) => {
     const { name, value } = e.target;
     if (name === "language") {
-      setSelectedLanguages([value]);
+      setSelectedLanguage(value);
     }
     setFormData((prev) => ({
       ...prev,
