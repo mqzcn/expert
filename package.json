@@ -7,8 +7,8 @@
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:api\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:api": "cd api && npm run start",
-    "start": "node src/index.js",
-    "build": "npm install && mkdir -p public && cp -r src/* public/"
+    "start": "cd api && node src/index.js",
+    "build": "cd api && npm install && mkdir -p public && cp -r src/* public/"
   },
   "dependencies": {
     "concurrently": "^8.2.2"
