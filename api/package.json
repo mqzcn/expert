@@ -5,8 +5,9 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.js",
-    "build": "mkdir -p dist && cp -r src/* dist/ && cp package.json dist/",
-    "clean": "rm -rf dist"
+    "build": "mkdir -p dist && cp -r src/* dist/ && cp package.json dist/ && cd dist && npm install",
+    "clean": "rm -rf dist",
+    "postinstall": "npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
