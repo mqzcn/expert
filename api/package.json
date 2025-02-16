@@ -1,12 +1,12 @@
 {
-  "name": "expert-language-backend",
+  "name": "expert-language-api",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js",
-    "start": "node src/index.js",
-    "seed:admin": "node src/utils/seedAdmin.js",
-    "build": "npm install && mkdir -p public && cp -r src/* public/"
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.js",
+    "build": "mkdir -p dist && cp -r src/* dist/ && cp package.json dist/",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
