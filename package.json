@@ -10,7 +10,7 @@
     "build": "npm run build:frontend && npm run build:api",
     "build:frontend": "cd frontend && npm run build",
     "build:api": "cd api && npm run build",
-    "start": "cd api/dist && node index.js"
+    "start": "node api/dist/index.js"
   },
   "dependencies": {
     "concurrently": "^8.2.2"
