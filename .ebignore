@@ -3,4 +3,5 @@ node_modules/
 **/src/
 **/.env
 **/*.log
-!api/dist/** 
+!api/dist/**
+!api/Procfile 
