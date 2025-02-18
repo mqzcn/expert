@@ -1,4 +1,5 @@
-import { Calendar, Event } from "react-big-calendar";
+import Calendar from "react-big-calendar";
+import type { Event } from "react-big-calendar/lib/Views";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
