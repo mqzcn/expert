@@ -1,11 +1,13 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/proxy",
+      "destination": "/api/proxy.js"
     }
   ],
-  "env": {
-    "VITE_API_URL": "https://your-backend-url.com"
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    }
   }
 }

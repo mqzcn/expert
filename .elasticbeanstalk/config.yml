@@ -2,7 +2,7 @@ branch-defaults:
   EL-001:
     environment: expert-api-env-3
   main:
-    environment: null
+    environment: expert-app-env
     group_suffix: null
 environment-defaults:
   expert-api-env-3:
