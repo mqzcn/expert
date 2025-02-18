@@ -1,7 +1,7 @@
-import { Calendar as BigCalendar } from "react-big-calendar/lib/Calendar";
-import type { Event } from "react-big-calendar/lib/index";
+import { Calendar as BigCalendar } from "react-big-calendar";
+import type { Event } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { dateFnsLocalizer } from "react-big-calendar/lib/localizers/date-fns";
+import { dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
@@ -42,23 +42,18 @@ interface CalendarEvent extends Event {
   resource?: Booking;
 }
 
-// Create the localizer
 const locales = {
   "en-US": enUS,
 };
 
-// Create the localizer object manually
-const localizer = {
-  format: (date: Date, formatStr: string) =>
-    format(date, formatStr, { locale: enUS }),
-  parse: (str: string, format: string) =>
-    parse(str, format, new Date(), { locale: enUS }),
-  startOfWeek: (date: Date) => startOfWeek(date, { locale: enUS }),
-  getDay: (date: Date) => getDay(date),
-  locales: {
-    "en-US": enUS,
-  },
-};
+// Create the localizer using dateFnsLocalizer
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
 export default function CalendarComponent({
   events = [],
@@ -78,7 +73,7 @@ export default function CalendarComponent({
   return (
     <div className="h-[600px]">
       <BigCalendar
-        localizer={localizer as any}
+        localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
