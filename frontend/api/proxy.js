@@ -14,11 +14,11 @@ export default async function handler(req, res) {
       body: req.method === "POST" ? req.body : null,
     });
     console.log({ response });
-    const contentType = response.headers.get("content-type");
-    const data =
-      contentType && contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
+    // const contentType = response.headers.get("content-type");
+    // const data =
+    //   contentType && contentType.includes("application/json")
+    //     ? await response.json()
+    //     : await response.text();
 
     res.status(response.status).json(data);
   } catch (error) {
