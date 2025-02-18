@@ -1,5 +1,8 @@
-import { Calendar as BigCalendar } from "react-big-calendar";
-import type { Event } from "react-big-calendar";
+import Calendar from "react-big-calendar";
+import type {
+  CalendarProps as RBCProps,
+  Event as CalendarEvent,
+} from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
@@ -10,8 +13,8 @@ import { enUS } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 
 interface CalendarProps {
-  events: CalendarEvent[];
-  onEventClick?: (event: CalendarEvent) => void;
+  events: BookingEvent[];
+  onEventClick?: (event: BookingEvent) => void;
   isInterpreter?: boolean;
 }
 
@@ -35,7 +38,7 @@ interface Booking {
   meetingLink?: string;
 }
 
-interface CalendarEvent extends Event {
+interface BookingEvent extends CalendarEvent {
   title: string;
   start: Date;
   end: Date;
@@ -80,7 +83,7 @@ export default function CalendarComponent({
 }: CalendarProps) {
   const navigate = useNavigate();
 
-  const handleSelectEvent = (event: CalendarEvent) => {
+  const handleSelectEvent = (event: BookingEvent) => {
     if (onEventClick) {
       onEventClick(event);
     } else if (event.resource?._id) {
@@ -116,7 +119,7 @@ export default function CalendarComponent({
 
   return (
     <div className="h-[600px]">
-      <BigCalendar
+      <Calendar
         localizer={localizer}
         events={formattedEvents}
         startAccessor="start"
