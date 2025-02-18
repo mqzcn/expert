@@ -1,31 +1,31 @@
+import axios from "axios";
+
 export default async function handler(req, res) {
   try {
     const apiUrl =
       "http://expert-api.eu-west-2.elasticbeanstalk.com" +
       req.url.replace("/api/proxy", "");
-    console.log(req.body);
-    console.log({ "req.config.data": req.config.data });
-    console.log({ "req.config.headers": req.config.headers });
+    console.log("Request Body:", req.body);
+    console.log("Request Headers:", req.headers);
     console.log(req.headers.contentType);
     const body =
       req.method !== "GET" && req.body ? JSON.stringify(req.body) : null;
     console.log({ body });
-    const response = await fetch(apiUrl, {
-      method: req.method,
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        ...req.config.headers, // Forward headers (includes Authorization)
-      },
-      body,
-    });
-    console.log({ response });
-    const contentType = response.headers.get("content-type");
-    const data =
-      contentType && contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
 
-    res.status(response.status).json(data);
+    const headers = {
+      "Content-Type": req.headers["content-type"], // Forward Content-Type
+      Authorization: req.headers["authorization"], // Forward Authorization header if needed
+    };
+    console.log({ headers });
+
+    const response = await axios({
+      method: req.method,
+      url: apiUrl,
+      headers: headers,
+      data: req.method !== "GET" && req.body ? req.body : null, // Pass body if it's not a GET request
+    });
+
+    res.status(response.status).json(response.data);
   } catch (error) {
     console.error("Proxy error:", error);
     res.status(500).json({ error: "Internal Server Error" });
