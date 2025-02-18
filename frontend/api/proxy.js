@@ -4,7 +4,8 @@ export default async function handler(req, res) {
       "http://expert-api.eu-west-2.elasticbeanstalk.com" +
       req.url.replace("/api/proxy", "");
     console.log(req.body);
-
+    console.log({ "req.config.data": req.config.data });
+    console.log({ "req.config.headers": req.config.headers });
     console.log(req.headers.contentType);
     const body =
       req.method !== "GET" && req.body ? JSON.stringify(req.body) : null;
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
       method: req.method,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        ...req.headers, // Forward headers (includes Authorization)
+        ...req.config.headers, // Forward headers (includes Authorization)
       },
       body,
     });
