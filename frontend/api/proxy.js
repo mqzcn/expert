@@ -5,7 +5,7 @@ export default async function handler(req, res) {
       req.url.replace("/api/proxy", "");
     console.log(req.body);
 
-    console.log(req.method);
+    console.log(req.headers.contentType);
     const body =
       req.method !== "GET" && req.body ? JSON.stringify(req.body) : null;
     console.log({ body });
