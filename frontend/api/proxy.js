@@ -3,14 +3,14 @@ export default async function handler(req, res) {
     const apiUrl =
       "http://expert-api.eu-west-2.elasticbeanstalk.com" +
       req.url.replace("/api/proxy", "");
-    console.log(req.data);
+    console.log(req);
     const response = await fetch(apiUrl, {
       method: req.method,
       headers: {
         "Content-Type": "application/json",
         ...req.headers, // Forward headers (includes Authorization)
       },
-      body: req.method !== "GET" ? JSON.stringify(req.data) : null,
+      body: req.method === "POST" ? JSON.stringify({ ...req.body }) : null,
     });
     console.log({ response });
     const contentType = response.headers.get("content-type");
