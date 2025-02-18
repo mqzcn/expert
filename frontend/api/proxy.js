@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json; charset=utf-8",
         ...req.headers, // Forward headers (includes Authorization)
       },
-      body: { email: body.email, password: body.password },
+      body,
     });
     console.log({ response });
     const contentType = response.headers.get("content-type");
