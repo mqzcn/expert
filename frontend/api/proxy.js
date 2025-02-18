@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     console.log(req.body);
     console.log(req.data);
     console.log(req.method);
-    const response = await axios(apiUrl, {
+    const response = await fetch(apiUrl, {
       method: req.method,
       headers: {
         "Content-Type": "application/json",
