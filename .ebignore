@@ -5,4 +5,5 @@ node_modules/
 **/*.log
 !api/dist/**
 !api/Procfile
-!api/package.json 
+!api/package.json
+!api/.ebextensions/** 
