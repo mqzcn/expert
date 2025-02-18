@@ -1,8 +1,4 @@
-import Calendar from "react-big-calendar";
-import type {
-  CalendarProps as RBCProps,
-  Event as CalendarEvent,
-} from "react-big-calendar";
+import { Calendar, Event } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
@@ -38,7 +34,7 @@ interface Booking {
   meetingLink?: string;
 }
 
-interface BookingEvent extends CalendarEvent {
+interface BookingEvent extends Event {
   title: string;
   start: Date;
   end: Date;
