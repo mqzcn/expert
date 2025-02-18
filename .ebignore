@@ -4,4 +4,5 @@ node_modules/
 **/.env
 **/*.log
 !api/dist/**
-!api/Procfile 
+!api/Procfile
+!api/package.json 
