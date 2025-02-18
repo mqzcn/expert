@@ -55,6 +55,24 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+// Helper function to parse time string and add hours
+function addHoursToTime(timeStr: string, hoursToAdd: number): Date {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  date.setTime(date.getTime() + hoursToAdd * 60 * 60 * 1000);
+  return date;
+}
+
+// Helper function to format time
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export default function CalendarComponent({
   events = [],
   onEventClick,
@@ -70,11 +88,37 @@ export default function CalendarComponent({
     }
   };
 
+  // Format the events with proper end times
+  const formattedEvents = events.map((event) => {
+    if (event.resource) {
+      const startDate = new Date(event.resource.date);
+      const [startHours, startMinutes] = event.resource.startTime
+        .split(":")
+        .map(Number);
+      startDate.setHours(startHours, startMinutes, 0, 0);
+
+      const endDate = new Date(startDate);
+      endDate.setTime(
+        endDate.getTime() + event.resource.hours * 60 * 60 * 1000
+      );
+
+      return {
+        ...event,
+        start: startDate,
+        end: endDate,
+        title: `${event.resource.client.name} - ${
+          event.resource.language.name
+        } (${formatTime(startDate)} - ${formatTime(endDate)})`,
+      };
+    }
+    return event;
+  });
+
   return (
     <div className="h-[600px]">
       <BigCalendar
         localizer={localizer}
-        events={events}
+        events={formattedEvents}
         startAccessor="start"
         endAccessor="end"
         onSelectEvent={handleSelectEvent}
