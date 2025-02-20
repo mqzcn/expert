@@ -1,94 +1,49 @@
-import Calendar from "react-big-calendar";
-import type { Event } from "react-big-calendar/lib/Views";
+import React from "react";
+import { Calendar as BigCalendar, Event } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { dateFnsLocalizer } from "react-big-calendar";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
+import { DateLocalizer } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { useNavigate } from "react-router-dom";
 
 interface CalendarProps {
   events: BookingEvent[];
   onEventClick?: (event: BookingEvent) => void;
-  isInterpreter?: boolean;
-}
-
-interface Booking {
-  _id: string;
-  date: string;
-  startTime: string;
-  hours: number;
-  client: {
-    name: string;
-    email: string;
-  };
-  interpreter?: {
-    name: string;
-    email: string;
-  };
-  language: {
-    name: string;
-  };
-  status: string;
-  meetingLink?: string;
 }
 
 interface BookingEvent extends Event {
   title: string;
   start: Date;
   end: Date;
-  resource?: Booking;
+  resource?: {
+    _id: string;
+    date: string;
+    startTime: string;
+    hours: number;
+    client: {
+      name: string;
+    };
+    language: {
+      name: string;
+    };
+  };
 }
 
-const locales = {
-  "en-US": enUS,
-};
-
-// Create the localizer using dateFnsLocalizer
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
+// Set up the DateLocalizer
+const localizer = new DateLocalizer({
+  format: (date, formatString) => format(date, formatString, { locale: enUS }),
+  parse: (dateString, formatString) =>
+    parse(dateString, formatString, new Date(), { locale: enUS }),
+  startOfWeek: () => startOfWeek(new Date(), { locale: enUS }),
+  getDay: (date) => getDay(date),
+  firstOfWeek: () => 0, // Sunday = 0, Monday = 1
+  locales: {
+    "en-US": enUS,
+  },
 });
 
-// Helper function to parse time string and add hours
-function addHoursToTime(timeStr: string, hoursToAdd: number): Date {
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  date.setTime(date.getTime() + hoursToAdd * 60 * 60 * 1000);
-  return date;
-}
-
-// Helper function to format time
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
-export default function CalendarComponent({
-  events = [],
-  onEventClick,
-  isInterpreter = false,
-}: CalendarProps) {
-  const navigate = useNavigate();
-
-  const handleSelectEvent = (event: BookingEvent) => {
-    if (onEventClick) {
-      onEventClick(event);
-    } else if (event.resource?._id) {
-      navigate(`/bookings/${event.resource._id}`);
-    }
-  };
-
-  // Format the events with proper end times
+// Calendar component definition
+const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
+  // Format the events with proper start and end times
   const formattedEvents = events.map((event) => {
     if (event.resource) {
       const startDate = new Date(event.resource.date);
@@ -108,22 +63,37 @@ export default function CalendarComponent({
         end: endDate,
         title: `${event.resource.client.name} - ${
           event.resource.language.name
-        } (${formatTime(startDate)} - ${formatTime(endDate)})`,
+        } (${startDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} - ${endDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })})`,
       };
     }
     return event;
   });
 
+  const handleSelectEvent = (event: BookingEvent) => {
+    if (onEventClick) {
+      onEventClick(event);
+    }
+  };
+
   return (
     <div className="h-[600px]">
-      <Calendar
+      <BigCalendar
         localizer={localizer}
         events={formattedEvents}
         startAccessor="start"
         endAccessor="end"
         onSelectEvent={handleSelectEvent}
         views={["month", "week", "day"]}
+        style={{ height: "100%" }} // Optional: Set height for better display
       />
     </div>
   );
-}
+};
+
+export default Calendar;
