@@ -1,16 +1,12 @@
-import React from "react";
-import {
-  Calendar as BigCalendar,
-  dateFnsLocalizer,
-  Event,
-} from "react-big-calendar";
+import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
-import enUS from "date-fns/locale/en-US";
+import { enUS } from "date-fns/locale";
 
 interface CalendarProps {
   events: BookingEvent[];
   onEventClick?: (event: BookingEvent) => void;
+  isInterpreter?: boolean;
 }
 
 interface BookingEvent extends Event {
@@ -31,11 +27,8 @@ interface BookingEvent extends Event {
   };
 }
 
-// Set up the DateLocalizer
-const locales = {
-  "en-US": enUS,
-};
-
+// Set up the DateLocalizer using date-fns
+const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({
   format,
   parse,
