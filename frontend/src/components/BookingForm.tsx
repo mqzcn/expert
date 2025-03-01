@@ -6,13 +6,13 @@ import axios from "axios";
 const BookingForm: React.FC<{ languages?: Language[] }> = ({
   languages = [],
 }) => {
-  // Ensure languages is always an array
+  // Ensure languagesData is always an array
   const { data: languagesData = [], isLoading } = useQuery({
     queryKey: ["languages"],
     queryFn: async () => {
       const response = await axios.get("/api/languages");
       console.log(response.data);
-      return response.data; // Ensure this is an array
+      return Array.isArray(response.data) ? response.data : []; // Fix: Ensure array
     },
   });
 

@@ -12,3 +12,18 @@ export interface Language {
   name: string;
   code: string;
 }
+
+export interface BookingEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  resource?: {
+    _id: string;
+    date: string;
+    startTime: string;
+    hours: number;
+    client: { name: string };
+    language: { name: string };
+  };
+}

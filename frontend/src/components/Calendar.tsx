@@ -1,7 +1,10 @@
-import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
+import React from "react";
+import { Calendar as BigCalendar } from "react-big-calendar";
+import { dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
+import type { BookingEvent } from "../types";
 
 interface CalendarProps {
   events: BookingEvent[];
@@ -9,32 +12,13 @@ interface CalendarProps {
   isInterpreter?: boolean;
 }
 
-interface BookingEvent extends Event {
-  title: string;
-  start: Date;
-  end: Date;
-  resource?: {
-    _id: string;
-    date: string;
-    startTime: string;
-    hours: number;
-    client: {
-      name: string;
-    };
-    language: {
-      name: string;
-    };
-  };
-}
-
 // Set up the DateLocalizer using date-fns
-const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek,
+  startOfWeek: () => startOfWeek(new Date(), { locale: enUS }),
   getDay,
-  locales,
+  locales: { enUS },
 });
 
 // Calendar component definition
@@ -54,9 +38,7 @@ const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
       );
 
       return {
-        ...event,
-        start: startDate,
-        end: endDate,
+        id: event.id,
         title: `${event.resource.client.name} - ${
           event.resource.language.name
         } (${startDate.toLocaleTimeString([], {
@@ -66,6 +48,9 @@ const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
           hour: "2-digit",
           minute: "2-digit",
         })})`,
+        start: startDate,
+        end: endDate,
+        resource: event.resource,
       };
     }
     return event;
@@ -86,7 +71,7 @@ const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
         endAccessor="end"
         onSelectEvent={handleSelectEvent}
         views={["month", "week", "day"]}
-        style={{ height: "100%" }} // Optional: Set height for better display
+        style={{ height: "100%" }}
       />
     </div>
   );
