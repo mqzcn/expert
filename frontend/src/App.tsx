@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDashboard from "./pages/ClientDashboard";
 import UserManagement from "./pages/UserManagement";
 import Faqs from "./pages/Faqs";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ export default function App() {
                 }
               />
               <Route path="/faqs" element={<Faqs />} />
+              <Route path="/about" element={<AboutUs />} />
             </Routes>
           </main>
           <Footer />
