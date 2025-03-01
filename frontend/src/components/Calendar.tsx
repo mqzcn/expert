@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar as BigCalendar } from "react-big-calendar";
+import { Calendar as BigCalendar } from "react-big-calendar/lib";
 import { dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";

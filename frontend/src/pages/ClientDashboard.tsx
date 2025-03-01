@@ -23,13 +23,15 @@ interface Booking {
 export default function ClientDashboard() {
   const queryClient = useQueryClient();
 
-  const { data: bookings, isLoading } = useQuery<Booking[]>({
+  const { data, isLoading } = useQuery({
     queryKey: ["userBookings"],
     queryFn: async () => {
       const response = await axios.get("/api/bookings/user");
       return response.data;
     },
   });
+
+  const bookings: Booking[] = Array.isArray(data) ? data : [];
 
   const cancelBookingMutation = useMutation({
     mutationFn: async (bookingId: string) => {

@@ -65,7 +65,8 @@ export default function BookingForm() {
     queryKey: ["availableLanguages"],
     queryFn: async () => {
       const response = await axios.get("/api/languages/available");
-      return response.data;
+      console.log("Languages API response:", response.data); // Debug log
+      return Array.isArray(response.data) ? response.data : []; // Ensure it's an array
     },
   });
 
