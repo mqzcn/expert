@@ -14,6 +14,7 @@ import ClientDashboard from "./pages/ClientDashboard";
 import UserManagement from "./pages/UserManagement";
 import Faqs from "./pages/Faqs";
 import AboutUs from "./pages/AboutUs";
+import HelpCentre from "./pages/HelpCentre";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ export default function App() {
               />
               <Route path="/faqs" element={<Faqs />} />
               <Route path="/about" element={<AboutUs />} />
+              <Route path="/help" element={<HelpCentre />} />
             </Routes>
           </main>
           <Footer />

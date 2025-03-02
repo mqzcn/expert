@@ -37,7 +37,7 @@ const faqs = [
       {
         question: "Can I cancel a booking?",
         answer:
-          "Yes, you can cancel a booking through your dashboard. Please note that:\n1. Log in to your account\n2. Go to 'My Bookings'\n3. Find the booking you wish to cancel\n4. Click on 'Cancel Booking'\nPlease refer to our terms of service for any cancellation policies or fees that may apply.",
+          "Yes, you can cancel a booking through your dashboard:\n1. Log in to your account\n2. Go to 'My Bookings'\n3. Find the booking you wish to cancel\n4. Click on 'Cancel Booking'\nPlease refer to our terms of service for any cancellation policies or fees that may apply.",
       },
       {
         question: "What if no interpreter is available for my requested time?",
