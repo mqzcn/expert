@@ -170,7 +170,7 @@ export default function UserManagement() {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="content-center">Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto p-4">

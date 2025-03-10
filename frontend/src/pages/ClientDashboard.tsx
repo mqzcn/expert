@@ -80,7 +80,7 @@ export default function ClientDashboard() {
     }) || [];
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="content-center">Loading...</div>;
   }
 
   return (

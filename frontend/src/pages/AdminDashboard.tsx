@@ -135,7 +135,7 @@ export default function AdminDashboard() {
   };
 
   if (loadingBookings) {
-    return <div>Loading...</div>;
+    return <div className="content-center">Loading...</div>;
   }
 
   return (
