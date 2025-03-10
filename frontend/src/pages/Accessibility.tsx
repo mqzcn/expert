@@ -152,6 +152,34 @@ const accessibility = [
         answer:
           "- We've developed our website in compliance with WCAG 2.1 (Web Content Accessibility Guidelines) Level AA standards\n- We regularly conduct user testing with assistive technologies\n- We provide accessibility training for our development and content teams",
       },
+      {
+        question: "Navigation and Structure",
+        answer:
+          "- Clear and consistent navigation throughout the site\n- Logical heading structure to facilitate screen reader navigation\n- Proper use of ARIA landmarks to identify regions of the page\n- Skip navigation links to bypass repetitive content\n- Breadcrumb trails for enhanced navigation",
+      },
+      {
+        question: "Visual Design",
+        answer:
+          "Text and background color combinations that meet contrast requirements\n- Resizable text without loss of functionality\n- No content that flashes more than three times per second\n- Focus indicators for keyboard navigation\n- Responsive design that adapts to different viewport sizes",
+      },
+      {
+        question: "Forms and Interactive Elements",
+        answer:
+          "- All form fields have associated labels\n- Error messages are clearly identified and explained\n- Form validation provides clear guidance on how to correct errors\n- Sufficient time to complete forms with options to extend time limits\n- No time-dependent responses required unless necessary",
+      },
+      {
+        question: "Content and Text",
+        answer:
+          "- Clear, simple language where possible\n- Explanations for specialized terminology\n- Alternative text for all meaningful images\n- Captions and transcripts for video content\n- Text alternatives for complex visualizations",
+      },
+      {
+        question: "",
+        answer: "",
+      },
+      {
+        question: "",
+        answer: "",
+      },
     ],
   },
 ];
