@@ -1,47 +1,8 @@
 import React from "react";
 
-// ## Accessibility Features
-
-// Our platform includes the following accessibility features:
-
-// ### Navigation and Structure
-// - Clear and consistent navigation throughout the site
-// - Logical heading structure to facilitate screen reader navigation
-// - Proper use of ARIA landmarks to identify regions of the page
-// - Skip navigation links to bypass repetitive content
-// - Breadcrumb trails for enhanced navigation
-
-// ### Visual Design
-// - Text and background color combinations that meet contrast requirements
-// - Resizable text without loss of functionality
-// - No content that flashes more than three times per second
-// - Focus indicators for keyboard navigation
-// - Responsive design that adapts to different viewport sizes
-
-// ### Forms and Interactive Elements
-// - All form fields have associated labels
-// - Error messages are clearly identified and explained
-// - Form validation provides clear guidance on how to correct errors
-// - Sufficient time to complete forms with options to extend time limits
-// - No time-dependent responses required unless necessary
-
-// ### Content and Text
-// - Clear, simple language where possible
-// - Explanations for specialized terminology
-// - Alternative text for all meaningful images
-// - Captions and transcripts for video content
-// - Text alternatives for complex visualizations
-
-// ### Input Methods
-// - Full keyboard accessibility for all functions
-// - Support for screen readers (JAWS, NVDA, VoiceOver, TalkBack)
-// - Compatibility with speech recognition software
-// - Adjustable timing for those who need more time to complete actions
-// - Touch-friendly elements with adequate spacing
-
 // ## Assistive Technology Compatibility
 
-// Expert Language is designed to be compatible with the following assistive technologies:
+// Expert Language is designed to be compatible with the following assistive technologies
 
 // - Screen readers (JAWS, NVDA, VoiceOver, TalkBack)
 // - Speech recognition software
@@ -173,12 +134,35 @@ const accessibility = [
           "- Clear, simple language where possible\n- Explanations for specialized terminology\n- Alternative text for all meaningful images\n- Captions and transcripts for video content\n- Text alternatives for complex visualizations",
       },
       {
-        question: "",
-        answer: "",
+        question: "Input Methods",
+        answer:
+          "- Full keyboard accessibility for all functions\n- Support for screen readers (JAWS, NVDA, VoiceOver, TalkBack)\n- Compatibility with speech recognition software\n- Adjustable timing for those who need more time to complete actions\n- Touch-friendly elements with adequate spacing",
+      },
+    ],
+  },
+  {
+    category: "Assistive Technology Compatibility",
+    questions: [
+      {
+        question:
+          "Expert Language is designed to be compatible with the following assistive technologies",
+        answer:
+          "- Screen readers (JAWS, NVDA, VoiceOver, TalkBack)\n- Speech recognition software\n- Screen magnifiers\n- Alternative keyboards and input devices\n- Browser extensions that modify content for accessibility needs",
+      },
+    ],
+  },
+  {
+    category: "Known Issues and Workarounds",
+    questions: [
+      {
+        question:
+          "While we strive for complete accessibility, we acknowledge the following known issues",
+        answer:
+          "1. **Video meeting integration**: Some third-party video conferencing platforms may have varying levels of accessibility support. We recommend:\n- Using Zoom or Microsoft Teams which have stronger accessibility features\n- Testing your preferred platform with your assistive technology before sessions\n- Contacting support if you need accommodation for video meetings",
       },
       {
-        question: "",
-        answer: "",
+        answer:
+          "2. **Calendar selection**: Some users with motor disabilities may find the date picker challenging. Alternative methods:\n- Use keyboard navigation (Tab and arrow keys) to move through dates\n- Enter dates manually in the format DD/MM/YYYY\n- Contact support for assistance with booking if needed",
       },
     ],
   },
