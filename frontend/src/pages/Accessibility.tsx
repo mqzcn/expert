@@ -166,6 +166,30 @@ const accessibility = [
       },
     ],
   },
+  {
+    category: "Formal Compliance Status",
+    questions: [
+      {
+        question: "",
+        answer:
+          "Expert Language is partially conformant with WCAG 2.1 Level AA. Partially conformant means that some parts of the content do not fully conform to the accessibility standard.",
+      },
+      {
+        answer:
+          "Expert Language's accessibility has been assessed through:\n- Internal evaluation using automated testing tools\n- Manual testing with assistive technologies\n- User testing with individuals who use assistive technologies\n- Periodic third-party accessibility audits",
+      },
+    ],
+  },
+  {
+    category: "Continuous Improvement",
+    questions: [
+      {
+        question: "",
+        answer:
+          "We are committed to ongoing improvement of our accessibility efforts. Our accessibility roadmap includes:\n1. Regular accessibility audits\n2. Ongoing team training on accessible design and development\n3. User testing with people who use assistive technologies\n4. Incorporation of feedback from users with disabilities\n5. Regular updates to keep pace with evolving accessibility standards and technologies",
+      },
+    ],
+  },
 ];
 
 const Accessibility = () => {
