@@ -183,7 +183,8 @@ const accessibility = [
       {
         question:
           "Accessibility of Expert Language relies on the following technologies to work:",
-        answer: "- HTML\n- WAI-ARIA\n- CSS\n- JavaScript",
+        answer:
+          "- HTML\n- WAI-ARIA\n- CSS\n- JavaScript\nThese technologies are relied upon for conformance with the accessibility standards used.",
       },
     ],
   },
@@ -195,6 +196,9 @@ const accessibility = [
           "We are committed to ongoing improvement of our accessibility efforts. Our accessibility roadmap includes:",
         answer:
           "1. Regular accessibility audits\n2. Ongoing team training on accessible design and development\n3. User testing with people who use assistive technologies\n4. Incorporation of feedback from users with disabilities\n5. Regular updates to keep pace with evolving accessibility standards and technologies",
+      },
+      {
+        answer: "This statement was last updated on 01 March 2025.",
       },
     ],
   },
