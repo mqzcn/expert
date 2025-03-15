@@ -1,77 +1,5 @@
 import React from "react";
 
-// ## Assistive Technology Compatibility
-
-// Expert Language is designed to be compatible with the following assistive technologies
-
-// - Screen readers (JAWS, NVDA, VoiceOver, TalkBack)
-// - Speech recognition software
-// - Screen magnifiers
-// - Alternative keyboards and input devices
-// - Browser extensions that modify content for accessibility needs
-
-// ## Known Issues and Workarounds
-
-// While we strive for complete accessibility, we acknowledge the following known issues:
-
-// 1. **Video meeting integration**: Some third-party video conferencing platforms may have varying levels of accessibility support. We recommend:
-//    - Using Zoom or Microsoft Teams which have stronger accessibility features
-//    - Testing your preferred platform with your assistive technology before sessions
-//    - Contacting support if you need accommodation for video meetings
-
-// 2. **Calendar selection**: Some users with motor disabilities may find the date picker challenging. Alternative methods:
-//    - Use keyboard navigation (Tab and arrow keys) to move through dates
-//    - Enter dates manually in the format DD/MM/YYYY
-//    - Contact support for assistance with booking if needed
-
-// ## Feedback and Contact Information
-
-// We welcome your feedback on the accessibility of Expert Language. Please let us know if you encounter accessibility barriers:
-
-// - Email: accessibility@expertlanguage.co.uk
-// - Phone: [Your phone number]
-// - Postal address: [Your postal address]
-
-// We try to respond to feedback within 3 business days.
-
-// ## Formal Compliance Status
-
-// Expert Language is partially conformant with WCAG 2.1 Level AA. Partially conformant means that some parts of the content do not fully conform to the accessibility standard.
-
-// ## Assessment Approach
-
-// Expert Language's accessibility has been assessed through:
-
-// - Internal evaluation using automated testing tools
-// - Manual testing with assistive technologies
-// - User testing with individuals who use assistive technologies
-// - Periodic third-party accessibility audits
-
-// ## Technical Specifications
-
-// Accessibility of Expert Language relies on the following technologies to work:
-// - HTML
-// - WAI-ARIA
-// - CSS
-// - JavaScript
-
-// These technologies are relied upon for conformance with the accessibility standards used.
-
-// ## Browser and Technology Compatibility
-
-// Expert Language is designed to be compatible with:
-// - Current versions of Chrome, Firefox, Safari, and Edge
-// - iOS 14+ and Android 10+
-// - Common screen readers including JAWS, NVDA, VoiceOver, and TalkBack
-
-// ## Additional Resources
-
-// For more information about web accessibility, we recommend:
-// - [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/standards-guidelines/wcag/)
-// - [WebAIM](https://webaim.org/)
-// - [AbilityNet](https://abilitynet.org.uk/)
-// - [Accessible Web Design](https://www.accessibility-developer-guide.com/)
-
 // ## Continuous Improvement
 
 // We are committed to ongoing improvement of our accessibility efforts. Our accessibility roadmap includes:
@@ -185,6 +113,16 @@ const accessibility = [
           "Accessibility of Expert Language relies on the following technologies to work:",
         answer:
           "- HTML\n- WAI-ARIA\n- CSS\n- JavaScript\nThese technologies are relied upon for conformance with the accessibility standards used.",
+      },
+    ],
+  },
+  {
+    category: "Additional Resources",
+    questions: [
+      {
+        question: "For more information about web accessibility, we recommend:",
+        answer:
+          "- Web Content Accessibility Guidelines (WCAG):  https://www.w3.org/WAI/standards-guidelines/wcag\n- WebAIM:  https://webaim.org\n- AbilityNet:  https://abilitynet.org.uk\n- Accessible Web Design:  https://www.accessibility-developer-guide.com",
       },
     ],
   },
