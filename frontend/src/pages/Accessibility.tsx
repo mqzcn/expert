@@ -1,17 +1,5 @@
 import React from "react";
 
-// ## Continuous Improvement
-
-// We are committed to ongoing improvement of our accessibility efforts. Our accessibility roadmap includes:
-
-// 1. Regular accessibility audits
-// 2. Ongoing team training on accessible design and development
-// 3. User testing with people who use assistive technologies
-// 4. Incorporation of feedback from users with disabilities
-// 5. Regular updates to keep pace with evolving accessibility standards and technologies
-
-// This statement was last updated on March 1, 2025.
-
 const accessibility = [
   {
     category: "",
