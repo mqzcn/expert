@@ -5,39 +5,153 @@ import {
   sendBookingNotification,
   sendBookingStatusUpdate,
 } from "../utils/email.js";
+import Stripe from "stripe";
+
+// TODO: Move Stripe secret key to environment variables
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// For now, using a placeholder key. Replace with your actual key.
+const stripe = new Stripe("sk_test_YOUR_STRIPE_SECRET_KEY"); // IMPORTANT: Replace with your test secret key
+
+export const createCheckoutSession = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+
+  // TODO: Fetch booking details from the database
+  // For now, using placeholder data
+  const booking = {
+    _id: bookingId,
+    // Assuming a fixed price or a way to retrieve/calculate it
+    // For this example, let's use a placeholder amount of $50 (5000 cents)
+    amount: 5000, // amount in cents
+    currency: "usd",
+    description: `Payment for Booking ID: ${bookingId}`,
+  };
+
+  if (!booking) {
+    res.status(404);
+    throw new Error("Booking not found");
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: booking.currency,
+            product_data: {
+              name: booking.description,
+              // You can add more product details here if needed
+              // images: ['url_to_your_product_image']
+            },
+            unit_amount: booking.amount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      // TODO: Replace with actual frontend URLs
+      success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
+      metadata: {
+        bookingId: booking.id, // Store bookingId to retrieve in webhook
+      },
+    });
+
+    res.json({ id: session.id });
+  } catch (error) {
+    console.error("Error creating Stripe session:", error);
+    res.status(500).json({ error: "Failed to create payment session" });
+  }
+});
 
 export const createBooking = asyncHandler(async (req, res) => {
   const { languageId, date, startTime, endTime } = req.body;
 
-  // Create the booking
-  const booking = await Booking.create({
-    client: req.user._id,
-    language: languageId,
-    date,
-    startTime,
-    endTime,
-    status: "pending",
-  });
+  // Placeholder for price calculation - replace with actual logic
+  const placeholderPrice = 5000; // 5000 cents = $50.00
 
-  // Find interpreters who speak this language
-  const interpreters = await User.find({
-    role: "interpreter",
-    languages: languageId,
-  });
-
-  // Populate the created booking with client and language details
-  const populatedBooking = await Booking.findById(booking._id)
-    .populate("client", "name email")
-    .populate("language", "name code");
-
-  if (booking) {
-    // Send notifications to all eligible interpreters
-    await sendBookingNotification(interpreters, populatedBooking);
-    res.status(201).json(populatedBooking);
-  } else {
-    res.status(400);
-    throw new Error("Invalid booking data");
+  // Create the booking document in the database first
+  let booking;
+  try {
+    booking = await Booking.create({
+      client: req.user._id,
+      language: languageId,
+      date,
+      startTime,
+      endTime,
+      status: "pending", // Overall booking status
+      paymentStatus: "pending", // Initial payment status
+      // stripeSessionId will be updated after session creation
+    });
+  } catch (dbError) {
+    console.error("Error creating booking in DB:", dbError);
+    res.status(500).json({ error: "Failed to create booking" });
+    return;
   }
+
+  try {
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking._id.toString()}`,
+      cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${booking._id.toString()}`,
+      client_reference_id: booking._id.toString(),
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Language Service Booking",
+              // Potentially add more details like date/time if desired
+              description: `Booking for ${new Date(
+                date
+              ).toLocaleDateString()} from ${startTime} to ${endTime}`,
+            },
+            unit_amount: placeholderPrice,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        bookingId: booking._id.toString(),
+      },
+    });
+
+    // Update booking with Stripe Session ID
+    booking.stripeSessionId = session.id;
+    await booking.save();
+
+    // Respond with session ID and booking ID
+    res.status(201).json({ sessionId: session.id, bookingId: booking._id });
+  } catch (stripeError) {
+    console.error("Error creating Stripe session:", stripeError);
+    // Optional: If Stripe fails, you might want to delete the created booking
+    // or mark its paymentStatus as 'failed' immediately.
+    // For now, just set paymentStatus to 'failed'.
+    if (booking) {
+      booking.paymentStatus = "failed";
+      // You might want to add a field for stripeError details to the booking
+      await booking.save().catch(saveError => console.error("Error updating booking to failed:", saveError));
+    }
+    res.status(500).json({ error: "Failed to create payment session" });
+  }
+
+  // Old notification logic (to be moved to webhook after payment confirmation)
+  // const interpreters = await User.find({
+  //   role: "interpreter",
+  //   languages: languageId,
+  // });
+  // const populatedBooking = await Booking.findById(booking._id)
+  //   .populate("client", "name email")
+  //   .populate("language", "name code");
+  // if (booking) { // This if condition is now part of the try-catch for DB
+  //   await sendBookingNotification(interpreters, populatedBooking);
+  //   // res.status(201).json(populatedBooking); // Response is now sent after Stripe session creation
+  // } else { // This else is now handled by the catch for DB
+  //   res.status(400);
+  //   throw new Error("Invalid booking data");
+  // }
 });
 
 export const getBookings = asyncHandler(async (req, res) => {

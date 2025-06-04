@@ -8,6 +8,7 @@ import {
   getUserBookings,
   getBookedSlots,
   updateBookingStatus,
+  createCheckoutSession,
 } from "../controllers/bookings.js";
 import { protect, interpreter } from "../middleware/auth.js";
 
@@ -20,6 +21,11 @@ router.get("/available-slots", protect, getAvailableSlots);
 router.get("/", protect, getBookings);
 
 router.post("/", protect, createBooking);
+router.post(
+  "/create-checkout-session/:bookingId",
+  protect,
+  createCheckoutSession
+);
 
 router.patch("/:id/status", protect, updateBookingStatus);
 router.patch("/:id", protect, updateBooking);

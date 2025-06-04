@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import languageRoutes from "./routes/languages.js";
 import bookingRoutes from "./routes/bookings.js";
 import interpreterRoutes from "./routes/interpreters.js";
+import stripeRoutes from "./routes/stripe.js"; // Import Stripe routes
 import Language from "./models/Language.js";
 import adminRoutes from "./routes/admin.js";
 
@@ -33,6 +34,7 @@ app.use("/api/languages", languageRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/interpreters", interpreterRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/stripe", stripeRoutes); // Mount Stripe webhook routes
 
 // Connect to MongoDB and initialize languages
 mongoose

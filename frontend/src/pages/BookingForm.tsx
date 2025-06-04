@@ -6,6 +6,12 @@ import { z } from "zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
+import { loadStripe } from "@stripe/stripe-js";
+
+// Initialize Stripe.js with your publishable key
+// Remember to replace this with your actual publishable key,
+// ideally loaded from an environment variable e.g. VITE_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe("pk_test_YOUR_STRIPE_PUBLISHABLE_KEY");
 
 const bookingSchema = z.object({
   languageId: z.string().min(1, "Please select a language"),
@@ -21,6 +27,11 @@ interface FormData {
   date: string;
   startTime: string;
   hours: number;
+}
+
+interface BackendBookingResponse {
+  sessionId: string;
+  bookingId: string;
 }
 
 interface Language {
@@ -98,13 +109,33 @@ export default function BookingForm() {
 
   const bookingMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
-      const response = await axios.post("/api/bookings", data);
+      const response = await axios.post<BackendBookingResponse>(
+        "/api/bookings",
+        data
+      );
       return response.data;
     },
-    onSuccess: () => {
-      toast.success("Booking submitted successfully!");
-      reset();
-      setSelectedDate("");
+    onSuccess: async (data: BackendBookingResponse) => {
+      toast.success("Booking details captured! Redirecting to payment...");
+      reset(); // Reset form fields
+      setSelectedDate(""); // Clear selected date
+
+      const stripe = await stripePromise;
+      if (stripe && data.sessionId) {
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: data.sessionId,
+        });
+        if (error) {
+          console.error("Stripe redirection error:", error);
+          toast.error(
+            error.message || "Failed to redirect to Stripe. Please try again."
+          );
+        }
+      } else {
+        toast.error(
+          "Stripe.js is not available or session ID is missing. Cannot redirect to payment."
+        );
+      }
     },
     onError: (error: any) => {
       console.error("Booking error:", error);
