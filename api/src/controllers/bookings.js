@@ -50,8 +50,12 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
       ],
       mode: "payment",
       // TODO: Replace with actual frontend URLs
-      success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
+      // success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      // cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
+      // success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      // cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
+      success_url: `https://expertlanguage.co.uk/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://expertlanguage.co.uk/booking-cancelled?booking_id=${bookingId}`,
       metadata: {
         bookingId: booking.id, // Store bookingId to retrieve in webhook
       },
@@ -94,8 +98,12 @@ export const createBooking = asyncHandler(async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking._id.toString()}`,
-      cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${booking._id.toString()}`,
+      success_url: `${
+        process.env.FRONTEND_URL
+      }/booking-success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking._id.toString()}`,
+      cancel_url: `${
+        process.env.FRONTEND_URL
+      }/booking-cancelled?booking_id=${booking._id.toString()}`,
       client_reference_id: booking._id.toString(),
       line_items: [
         {
@@ -135,12 +143,20 @@ export const createBooking = asyncHandler(async (req, res) => {
       // This depends on how you want to handle bookings that were created but payment failed to initiate.
       // For example: booking.status = 'payment_failed';
       // You might also want to add a field for stripeError details to the booking document.
-      await booking.save().catch(saveError => console.error("Error updating booking to 'payment_failed':", saveError));
+      await booking
+        .save()
+        .catch((saveError) =>
+          console.error(
+            "Error updating booking to 'payment_failed':",
+            saveError
+          )
+        );
     }
     // Send a clear error message to the frontend
     res.status(500).json({
-      message: "Failed to create payment session. Your booking may be pending payment initiation. Please try again or contact support.",
-      error: stripeError.message
+      message:
+        "Failed to create payment session. Your booking may be pending payment initiation. Please try again or contact support.",
+      error: stripeError.message,
     });
     return; // Ensure no further code in this block is executed
   }
