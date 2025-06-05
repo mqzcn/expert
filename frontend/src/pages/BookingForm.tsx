@@ -142,7 +142,6 @@ export default function BookingForm() {
         return;
       }
 
-
       if (!stripe) {
         toast.dismiss(loadingToastId);
         toast.error(
@@ -154,7 +153,7 @@ export default function BookingForm() {
       }
 
       toast.dismiss(loadingToastId);
-      toast.info("Redirecting to secure payment...");
+      toast("Redirecting to secure payment...");
 
       // Only reset form if we are attempting redirection
       reset();
@@ -178,11 +177,12 @@ export default function BookingForm() {
       }
       // No explicit success toast here as user is redirected (or error shown above).
     },
-    onError: (error: any) => { // error is AxiosError<any>
+    onError: (error: any) => {
+      // error is AxiosError<any>
       console.error("Booking error:", error);
       toast.error(
         error.response?.data?.message ||
-        "Failed to submit booking. Payment was not initiated. Please try again."
+          "Failed to submit booking. Payment was not initiated. Please try again."
       );
     },
   });
