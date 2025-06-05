@@ -5,14 +5,11 @@ import { sendBookingNotification } from "../utils/email.js"; // Needed for sendi
 import asyncHandler from "express-async-handler";
 
 // TODO: Replace with your actual Stripe secret key, ideally from environment variables
-const stripe = new Stripe(
-  process.env.STRIPE_SECRET_KEY || "sk_test_YOUR_STRIPE_SECRET_KEY"
-);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // TODO: Replace with your actual webhook signing secret from the Stripe dashboard
 // Ensure this is also an environment variable (e.g., STRIPE_WEBHOOK_SECRET)
-const endpointSecret =
-  process.env.STRIPE_WEBHOOK_SECRET || "whsec_YOUR_STRIPE_WEBHOOK_SECRET";
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export const handleStripeWebhook = asyncHandler(async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -143,12 +140,10 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
         console.error(
           `Error: bookingId not found in session metadata for ${event.type}.`
         );
-        res
-          .status(200)
-          .json({
-            received: true,
-            error: "BookingId missing in metadata for async_payment_failed",
-          });
+        res.status(200).json({
+          received: true,
+          error: "BookingId missing in metadata for async_payment_failed",
+        });
         return;
       }
 
@@ -177,11 +172,9 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
           `Database error processing ${event.type} for booking ${bookingId}:`,
           dbError
         );
-        res
-          .status(500)
-          .json({
-            error: "Failed to process booking update for async_payment_failed.",
-          });
+        res.status(500).json({
+          error: "Failed to process booking update for async_payment_failed.",
+        });
         return;
       }
       break;

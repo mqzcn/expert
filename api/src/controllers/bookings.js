@@ -50,12 +50,10 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
       ],
       mode: "payment",
       // TODO: Replace with actual frontend URLs
-      // success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-      // cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
-      // success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-      // cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
-      success_url: `https://expertlanguage.co.uk/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://expertlanguage.co.uk/booking-cancelled?booking_id=${bookingId}`,
+      success_url: `${process.env.FRONTEND_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/booking-cancelled?booking_id=${bookingId}`,
+      // success_url: `https://expertlanguage.co.uk/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      // cancel_url: `https://expertlanguage.co.uk/booking-cancelled?booking_id=${bookingId}`,
       metadata: {
         bookingId: booking.id, // Store bookingId to retrieve in webhook
       },
