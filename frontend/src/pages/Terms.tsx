@@ -114,7 +114,14 @@ const Terms = () => {
         Liability Expert Language Ltd and our directors, officers, agents,
         employees, subsidiaries, and affiliates will not be liable for any
         actions, claims, losses, damages, liabilities and expenses including
-        legal fees from your use of the Site.
+        legal fees from your use of the Site. Updates to these Terms and
+        Conditions
+        <br />
+        We reserve the right to update or modify these Terms and Conditions at
+        any time without prior notice. We will notify you of significant changes
+        through the Site or other communication channels. Your continued use of
+        the Site after the posting of any amendments constitutes acceptance of
+        the updated Terms and Conditions.
       </span>
     </>
   );
