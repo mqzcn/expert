@@ -10,7 +10,7 @@ import Stripe from "stripe";
 // TODO: Move Stripe secret key to environment variables
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // For now, using a placeholder key. Replace with your actual key.
-const stripe = new Stripe("sk_test_YOUR_STRIPE_SECRET_KEY"); // IMPORTANT: Replace with your test secret key
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // IMPORTANT: Replace with your test secret key
 
 export const createCheckoutSession = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
