@@ -132,7 +132,9 @@ describe('Booking Routes - POST /api/bookings (with Checkout Session)', () => {
       .set('Authorization', 'Bearer mocktoken');
 
     expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty('error', 'Failed to create payment session');
+    // Check for the refined error message structure
+    expect(response.body).toHaveProperty('message', 'Failed to create payment session. Your booking may be pending payment initiation. Please try again or contact support.');
+    expect(response.body).toHaveProperty('error', 'Stripe API Error');
 
     expect(BookingModelMock.create).toHaveBeenCalledTimes(1);
     expect(mockStripeInstance.checkout.sessions.create).toHaveBeenCalledTimes(1);
@@ -141,8 +143,37 @@ describe('Booking Routes - POST /api/bookings (with Checkout Session)', () => {
     expect(mockCreatedBooking.save).toHaveBeenCalledTimes(1); // Called to save paymentStatus='failed'
   });
 
+  test('should handle database error during Booking.create', async () => {
+    const mockBookingData = {
+      languageId: 'lang_test_id_db_error',
+      date: '2024-08-16',
+      startTime: '11:00',
+      endTime: '12:00',
+    };
+
+    BookingModelMock.create.mockRejectedValue(new Error('Database error'));
+
+    const response = await request(app)
+      .post('/api/bookings')
+      .send(mockBookingData)
+      .set('Authorization', 'Bearer mocktoken');
+
+    expect(response.status).toBe(500);
+    // This error comes from the asyncHandler wrapper or a generic error handler if not specified in controller
+    // For this test, we're checking the direct response from the controller's dbError catch block
+    expect(response.body).toHaveProperty('error', 'Failed to create booking');
+
+    expect(BookingModelMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ...mockBookingData,
+        client: 'mockUserId',
+        // paymentStatus: 'pending' // This would be part of the create call if it didn't throw
+      })
+    );
+    expect(mockStripeInstance.checkout.sessions.create).not.toHaveBeenCalled();
+  });
+
   // Add more tests:
-  // - Invalid input data (validation errors)
-  // - Database error during Booking.create
+  // - Invalid input data (validation errors from Zod schema if applicable here, or controller checks)
   // - etc.
 });

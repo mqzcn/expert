@@ -116,32 +116,73 @@ export default function BookingForm() {
       return response.data;
     },
     onSuccess: async (data: BackendBookingResponse) => {
-      toast.success("Booking details captured! Redirecting to payment...");
-      reset(); // Reset form fields
-      setSelectedDate(""); // Clear selected date
+      const loadingToastId = toast.loading("Processing booking...");
 
-      const stripe = await stripePromise;
-      if (stripe && data.sessionId) {
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: data.sessionId,
-        });
-        if (error) {
-          console.error("Stripe redirection error:", error);
-          toast.error(
-            error.message || "Failed to redirect to Stripe. Please try again."
-          );
-        }
-      } else {
+      if (!data.sessionId) {
+        toast.dismiss(loadingToastId);
         toast.error(
-          "Stripe.js is not available or session ID is missing. Cannot redirect to payment."
+          "Failed to initiate payment session. Your booking is not yet confirmed. Please try again or contact support.",
+          { duration: 6000 }
         );
+        // DO NOT RESET FORM HERE
+        return;
       }
+
+      let stripe;
+      try {
+        stripe = await stripePromise;
+      } catch (stripeLoadError) {
+        console.error("Stripe.js loading error:", stripeLoadError);
+        toast.dismiss(loadingToastId);
+        toast.error(
+          "Failed to load payment gateway. Please check your connection or contact support.",
+          { duration: 6000 }
+        );
+        // DO NOT RESET FORM HERE
+        return;
+      }
+
+
+      if (!stripe) {
+        toast.dismiss(loadingToastId);
+        toast.error(
+          "Failed to initialize payment gateway. Please try again or contact support.",
+          { duration: 6000 }
+        );
+        // DO NOT RESET FORM HERE
+        return;
+      }
+
+      toast.dismiss(loadingToastId);
+      toast.info("Redirecting to secure payment...");
+
+      // Only reset form if we are attempting redirection
+      reset();
+      setSelectedDate("");
+
+      const { error: stripeRedirectError } = await stripe.redirectToCheckout({
+        sessionId: data.sessionId,
+      });
+
+      if (stripeRedirectError) {
+        console.error("Stripe redirection error:", stripeRedirectError);
+        // If redirection fails, the form has already been reset.
+        // This toast informs the user about the failure.
+        toast.error(
+          stripeRedirectError.message ||
+            "Could not redirect to payment. Your booking is pending payment. Please check previous messages or contact support if issues persist.",
+          { duration: 10000 }
+        );
+        // At this point, the form is blank. User might need guidance.
+        // e.g., show bookingId (data.bookingId) if available and important.
+      }
+      // No explicit success toast here as user is redirected (or error shown above).
     },
-    onError: (error: any) => {
+    onError: (error: any) => { // error is AxiosError<any>
       console.error("Booking error:", error);
       toast.error(
         error.response?.data?.message ||
-          "Failed to submit booking. Please try again."
+        "Failed to submit booking. Payment was not initiated. Please try again."
       );
     },
   });

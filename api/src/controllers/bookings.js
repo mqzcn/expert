@@ -131,10 +131,18 @@ export const createBooking = asyncHandler(async (req, res) => {
     // For now, just set paymentStatus to 'failed'.
     if (booking) {
       booking.paymentStatus = "failed";
-      // You might want to add a field for stripeError details to the booking
-      await booking.save().catch(saveError => console.error("Error updating booking to failed:", saveError));
+      // Consider if the main booking.status should also be updated, e.g., to 'payment_failed'.
+      // This depends on how you want to handle bookings that were created but payment failed to initiate.
+      // For example: booking.status = 'payment_failed';
+      // You might also want to add a field for stripeError details to the booking document.
+      await booking.save().catch(saveError => console.error("Error updating booking to 'payment_failed':", saveError));
     }
-    res.status(500).json({ error: "Failed to create payment session" });
+    // Send a clear error message to the frontend
+    res.status(500).json({
+      message: "Failed to create payment session. Your booking may be pending payment initiation. Please try again or contact support.",
+      error: stripeError.message
+    });
+    return; // Ensure no further code in this block is executed
   }
 
   // Old notification logic (to be moved to webhook after payment confirmation)

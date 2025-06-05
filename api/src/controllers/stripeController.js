@@ -28,47 +28,42 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
 
   // Handle the event
   switch (event.type) {
-    case "checkout.session.completed":
+    case "checkout.session.completed": {
       const session = event.data.object;
       const bookingId = session.metadata?.bookingId;
-      const clientReferenceId = session.client_reference_id; // This should also be the bookingId
+      const clientReferenceId = session.client_reference_id;
 
-      console.log(`Processing checkout.session.completed for bookingId: ${bookingId} (from metadata) and client_reference_id: ${clientReferenceId}`);
+      console.log(`Processing ${event.type} for bookingId: ${bookingId} (metadata), client_reference_id: ${clientReferenceId}, payment_status: ${session.payment_status}`);
 
       if (!bookingId) {
-        console.error("Error: bookingId not found in session metadata.");
-        // Return 200 to Stripe to prevent retries for this specific error,
-        // as it's a configuration issue (metadata not set).
+        console.error("Error: bookingId not found in session metadata for checkout.session.completed.");
         res.status(200).json({ received: true, error: "BookingId missing in metadata" });
         return;
       }
 
       try {
         const booking = await Booking.findById(bookingId);
+        if (!booking) {
+          console.error(`Error: Booking not found with id: ${bookingId} for event ${event.type}`);
+          res.status(200).json({ received: true, error: "Booking not found" });
+          return;
+        }
 
-        if (booking) {
+        // Check payment status of the session
+        if (session.payment_status === "paid") {
           if (booking.paymentStatus === "pending") {
             booking.paymentStatus = "paid";
-            // Optional: Update overall booking status based on business logic.
-            // For example, if payment means the booking is fully confirmed:
-            // booking.status = "accepted";
-            // Or, if an interpreter still needs to accept it, 'pending' might be appropriate.
-            // For now, we only update paymentStatus.
             console.log(`Booking ${bookingId} paymentStatus updated to 'paid'.`);
 
-            // Re-introduce notification logic
-            // Populate booking with client and language details for the notification
             const populatedBooking = await Booking.findById(bookingId)
               .populate("client", "name email")
               .populate("language", "name code");
 
             if (populatedBooking) {
-              // Find interpreters who speak this language
               const interpreters = await User.find({
                 role: "interpreter",
-                languages: populatedBooking.language._id, // Assumes language field stores the ID
+                languages: populatedBooking.language._id,
               });
-
               if (interpreters.length > 0) {
                 await sendBookingNotification(interpreters, populatedBooking);
                 console.log(`Notifications sent to ${interpreters.length} interpreters for booking ${bookingId}.`);
@@ -76,42 +71,79 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
                 console.log(`No interpreters found for language ${populatedBooking.language.name} for booking ${bookingId}.`);
               }
             } else {
-              console.error(`Could not populate booking ${bookingId} for notifications.`);
+              console.error(`Could not populate booking ${bookingId} for notifications after payment.`);
             }
-
             await booking.save();
           } else {
-            console.log(`Booking ${bookingId} already processed or paymentStatus is not 'pending' (current: ${booking.paymentStatus}).`);
+            console.log(`Booking ${bookingId} already processed or paymentStatus not 'pending' (current: ${booking.paymentStatus}). No action taken for 'paid' session.`);
+          }
+        } else if (session.payment_status === "unpaid" || session.payment_status === "no_payment_required") {
+          // 'no_payment_required' is less likely for paid bookings but good to cover.
+          // 'unpaid' can happen if payment fails for some reason on a completed session.
+          if (booking.paymentStatus !== "paid") { // Avoid overwriting an already successful payment
+            booking.paymentStatus = "failed"; // Or a more specific status like 'unpaid'
+            await booking.save();
+            console.log(`Booking ${bookingId} paymentStatus updated to 'failed' due to session payment_status: ${session.payment_status}.`);
+          } else {
+            console.log(`Booking ${bookingId} is already 'paid'. No action taken for session payment_status: ${session.payment_status}.`);
           }
         } else {
-          console.error(`Error: Booking not found with id: ${bookingId}`);
+          console.log(`Unhandled payment_status '${session.payment_status}' for checkout.session.completed for booking ${bookingId}.`);
         }
       } catch (dbError) {
-        console.error(`Error processing booking ${bookingId}:`, dbError);
-        // Send 500 for database/internal errors to allow Stripe to retry
+        console.error(`Database error processing ${event.type} for booking ${bookingId}:`, dbError);
         res.status(500).json({ error: "Failed to process booking update." });
         return;
       }
       break;
-    case "payment_intent.payment_failed":
-      const paymentIntent = event.data.object;
-      const chargeId = paymentIntent.latest_charge;
-      console.log(`Payment failed for PaymentIntent: ${paymentIntent.id}, Charge: ${chargeId}`);
-      // TODO: Optionally, update booking status to 'payment_failed' or notify user
-      // const failedBookingId = paymentIntent.metadata?.bookingId; // If you add bookingId to PaymentIntent metadata
-      // if (failedBookingId) {
-      //   const bookingToUpdate = await Booking.findById(failedBookingId);
-      //   if (bookingToUpdate) {
-      //     bookingToUpdate.paymentStatus = 'failed';
-      //     await bookingToUpdate.save();
-      //   }
-      // }
+    }
+
+    case "checkout.session.async_payment_failed": {
+      const session = event.data.object;
+      const bookingId = session.metadata?.bookingId;
+      console.log(`Processing ${event.type} for bookingId: ${bookingId} (metadata)`);
+
+      if (!bookingId) {
+        console.error(`Error: bookingId not found in session metadata for ${event.type}.`);
+        res.status(200).json({ received: true, error: "BookingId missing in metadata for async_payment_failed" });
+        return;
+      }
+
+      try {
+        const booking = await Booking.findById(bookingId);
+        if (booking) {
+          if (booking.paymentStatus !== "paid") { // Don't overwrite if somehow paid via another means
+            booking.paymentStatus = "failed";
+            await booking.save();
+            console.log(`Booking ${bookingId} paymentStatus updated to 'failed' due to ${event.type}.`);
+          } else {
+             console.log(`Booking ${bookingId} is already 'paid'. No action taken for ${event.type}.`);
+          }
+        } else {
+          console.error(`Error: Booking not found with id: ${bookingId} for event ${event.type}`);
+        }
+      } catch (dbError) {
+        console.error(`Database error processing ${event.type} for booking ${bookingId}:`, dbError);
+        res.status(500).json({ error: "Failed to process booking update for async_payment_failed." });
+        return;
+      }
       break;
-    // ... handle other event types
+    }
+
+    case "payment_intent.payment_failed": {
+      const paymentIntent = event.data.object;
+      console.log(`Observed ${event.type}: PaymentIntent ID ${paymentIntent.id}, Status: ${paymentIntent.status}. Checkout session ID: ${paymentIntent.invoice?.charge?.checkout_session_id || paymentIntent.checkout_session_id || 'N/A'}`);
+      // If you store paymentIntentId on your Booking, you could use:
+      // const booking = await Booking.findOne({ paymentIntentId: paymentIntent.id });
+      // For now, just logging. More direct handling would require linking paymentIntent back to booking.
+      // Checkout session metadata is generally more straightforward for this.
+      break;
+    }
+
     default:
-      console.log(`Unhandled event type ${event.type}`);
+      console.log(`Unhandled event type ${event.type}.`);
   }
 
-  // Return a 200 response to acknowledge receipt of the event
+  // Return a 200 response to acknowledge receipt of the event (unless already sent)
   res.status(200).json({ received: true });
 });
