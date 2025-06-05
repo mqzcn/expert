@@ -18,6 +18,8 @@ import HelpCentre from "./pages/HelpCentre";
 import Accessibility from "./pages/Accessibility";
 import Careers from "./pages/Careers";
 import Terms from "./pages/Terms";
+import BookingSuccess from "./pages/BookingSuccess";
+import BookingFailure from "./pages/BookingFailure";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <BookingForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/booking-failure"
+                element={
+                  <ProtectedRoute>
+                    <BookingFailure />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/booking-success"
+                element={
+                  <ProtectedRoute>
+                    <BookingSuccess />
                   </ProtectedRoute>
                 }
               />
