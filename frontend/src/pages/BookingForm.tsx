@@ -11,7 +11,7 @@ import { loadStripe } from "@stripe/stripe-js";
 // Initialize Stripe.js with your publishable key
 // Remember to replace this with your actual publishable key,
 // ideally loaded from an environment variable e.g. VITE_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const bookingSchema = z.object({
   languageId: z.string().min(1, "Please select a language"),
