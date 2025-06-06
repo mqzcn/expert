@@ -5,6 +5,7 @@ import axios from "../lib/axios";
 import MeetingLinkModal from "../components/MeetingLinkModal";
 import Calendar from "../components/Calendar";
 import { type Event as CalendarEvent } from "react-big-calendar/lib/index";
+import { formatDateToUK } from "../utils/dateUtils";
 
 interface Language {
   _id: string;
@@ -23,7 +24,8 @@ interface Booking {
   _id: string;
   date: string;
   startTime: string;
-  hours: number;
+  endTime: string; // Added endTime
+  // hours: number; // Removed hours
   client: {
     name: string;
     email: string;
@@ -221,10 +223,7 @@ export default function InterpreterDashboard() {
       id: booking._id,
       title: `${booking.language.name} - ${booking.client.name}`,
       start: new Date(booking.date + "T" + booking.startTime),
-      end: new Date(
-        new Date(booking.date + "T" + booking.startTime).getTime() +
-          booking.hours * 60 * 60 * 1000
-      ),
+      end: new Date(booking.date + "T" + booking.endTime), // Use endTime
       status: booking.status,
       client: booking.client,
       language: booking.language,
@@ -238,14 +237,7 @@ export default function InterpreterDashboard() {
     }
   };
 
-  // Helper function to calculate end time
-  const getEndTime = (booking: Booking) => {
-    const [hours, minutes] = booking.startTime.split(":").map(Number);
-    const endHours = hours + booking.hours;
-    return `${endHours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  // Removed getEndTime helper function
 
   if (loadingLanguages || loadingProfile || loadingBookings) {
     return <div>Loading...</div>;
@@ -289,13 +281,13 @@ export default function InterpreterDashboard() {
                   <div>
                     <p className="text-sm font-medium text-gray-500">Date</p>
                     <p className="text-gray-900">
-                      {new Date(booking.date).toLocaleDateString()}
+                      {formatDateToUK(booking.date)}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Time</p>
                     <p className="text-gray-900">
-                      {booking.startTime} - {getEndTime(booking)}
+                      {booking.startTime} - {booking.endTime}
                     </p>
                   </div>
                   <div className="col-span-2">

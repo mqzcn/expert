@@ -23,19 +23,63 @@ const localizer = dateFnsLocalizer({
 
 // Calendar component definition
 const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
+  const calendarFormats = {
+    dateFormat: "dd/MM", // Date display in month view cells, e.g., "25/12"
+    dayFormat: (date: Date, culture: string | undefined, localizer: any) =>
+      localizer.format(date, "dd/MM/yyyy", culture), // Day header in week/day view
+    weekdayFormat: (date: Date, culture: string | undefined, localizer: any) =>
+      localizer.format(date, "EEE", culture), // Weekday header format e.g. "Mon"
+
+    timeGutterFormat: (
+      date: Date,
+      culture: string | undefined,
+      localizer: any
+    ) => localizer.format(date, "HH:mm", culture), // Time gutter format e.g. "09:00"
+
+    monthHeaderFormat: (
+      date: Date,
+      culture: string | undefined,
+      localizer: any
+    ) => localizer.format(date, "MMMM yyyy", culture),
+
+    dayRangeHeaderFormat: (
+      { start, end }: { start: Date; end: Date },
+      culture: string | undefined,
+      localizer: any
+    ) =>
+      localizer.format(start, "dd/MM", culture) +
+      " – " +
+      localizer.format(end, "dd/MM", culture),
+
+    agendaDateFormat: (
+      date: Date,
+      culture: string | undefined,
+      localizer: any
+    ) => localizer.format(date, "EEE dd/MM/yyyy", culture),
+  };
+
   // Format the events with proper start and end times
   const formattedEvents = events.map((event) => {
     if (event.resource) {
-      const startDate = new Date(event.resource.date);
-      const [startHours, startMinutes] = event.resource.startTime
-        .split(":")
-        .map(Number);
-      startDate.setHours(startHours, startMinutes, 0, 0);
-
-      const endDate = new Date(startDate);
-      endDate.setTime(
-        endDate.getTime() + event.resource.hours * 60 * 60 * 1000
+      // Ensure event.resource.date and startTime/endTime are valid
+      const startDate = new Date(
+        `${event.resource.date}T${event.resource.startTime}`
       );
+      const endDate = new Date(
+        `${event.resource.date}T${event.resource.endTime}`
+      );
+
+      // Validate dates
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.warn("Invalid date/time for event:", event);
+        // Return a version of the event that won't break, or skip it
+        return {
+          ...event,
+          title: event.title || "Invalid Event Data",
+          start: new Date(), // fallback
+          end: new Date(), // fallback
+        };
+      }
 
       return {
         id: event.id,
@@ -70,8 +114,9 @@ const Calendar: React.FC<CalendarProps> = ({ events = [], onEventClick }) => {
         startAccessor="start"
         endAccessor="end"
         onSelectEvent={handleSelectEvent}
-        views={["month", "week", "day"]}
+        views={["month", "week", "day", "agenda"]} // Added agenda view
         style={{ height: "100%" }}
+        formats={calendarFormats} // Add this line
       />
     </div>
   );

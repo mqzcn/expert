@@ -22,7 +22,7 @@ export interface BookingEvent {
     _id: string;
     date: string;
     startTime: string;
-    hours: number;
+    endTime: string;
     client: { name: string };
     language: { name: string };
   };

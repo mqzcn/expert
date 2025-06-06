@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 import Calendar from "../components/Calendar";
+import { formatDateToUK } from "../utils/dateUtils";
 
 interface Booking {
   _id: string;
@@ -104,7 +105,7 @@ export default function ClientDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-500">Date</p>
                   <p className="text-gray-900">
-                    {new Date(booking.date).toLocaleDateString()}
+                    {formatDateToUK(booking.date)}
                   </p>
                 </div>
                 <div>
