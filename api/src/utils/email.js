@@ -42,11 +42,138 @@ export const sendBookingNotification = async (interpreters, booking) => {
   }
 };
 
+export const sendBookingConfirmationToClient = async (booking) => {
+  try {
+    if (!booking || !booking.client || !booking.client.email) {
+      console.error(
+        "Invalid booking or client details for sending confirmation to client."
+      );
+      return;
+    }
+    if (!booking.language || !booking.language.name) {
+      console.error(
+        "Booking language details missing for sending confirmation to client."
+      );
+      // Fallback if language name is missing, though it should be populated
+      booking.language = { name: "the requested language" };
+    }
+
+    // Ensure date is valid before trying to format it
+    const bookingDate = booking.date
+      ? new Date(booking.date).toLocaleDateString()
+      : "Not specified";
+    const startTime = booking.startTime || "Not specified";
+    const endTime = booking.endTime || "Not specified";
+
+    const result = await resend.emails.send({
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      to: booking.client.email,
+      subject: "Your Booking with Expert Language is Confirmed!",
+      html: `
+        <h2>Booking Confirmed!</h2>
+        <p>Dear ${booking.client.name || "Client"},</p>
+        <p>Thank you for your booking with Expert Language. We are pleased to confirm that your booking has been successfully processed.</p>
+        
+        <h3>Booking Details:</h3>
+        <ul>
+          <li><strong>Language:</strong> ${booking.language.name}</li>
+          <li><strong>Date:</strong> ${bookingDate}</li>
+          <li><strong>Time:</strong> ${startTime} - ${endTime}</li>
+        </ul>
+
+        <p>We are now in the process of assigning a suitable interpreter for your session.</p>
+        <p><strong>You will receive a separate email containing the meeting link and interpreter details once an interpreter has accepted your booking.</strong></p>
+
+        <p>If you have any questions, please don't hesitate to contact our support team.</p>
+        <p>Sincerely,</p>
+        <p>The Expert Language Team</p>
+      `,
+    });
+    console.log("Booking confirmation email sent to client:", result);
+    if (result.error) {
+      console.error(
+        "Resend error when sending booking confirmation to client:",
+        result.error
+      );
+    }
+  } catch (error) {
+    console.error({
+      message: "Error sending booking confirmation email to client",
+      recipientEmail: booking?.client?.email,
+      bookingId: booking?._id,
+      errorDetails: error,
+    });
+  }
+};
+
 export const sendBookingStatusUpdate = async (booking, status) => {
   try {
     let subject, html;
+    let recipientEmail = booking?.client?.email; // Default recipient is client unless specified
+
+    // Ensure necessary details are present for "accepted" status
+    if (status === "accepted") {
+      if (!booking?.interpreter?.name) {
+        console.error(
+          "Interpreter details missing for 'accepted' booking status email."
+        );
+        // Potentially fallback or don't send, or send a modified email
+        // For now, we'll let it proceed and it will show "undefined" or similar if data is missing.
+      }
+      if (!booking?.meetingLink) {
+        console.error(
+          "Meeting link missing for 'accepted' booking status email."
+        );
+        // Crucial for this email, perhaps should not send if missing.
+        // For now, we'll let it proceed.
+      }
+    }
 
     switch (status) {
+      case "accepted":
+        subject = "Your Booking is Confirmed and Interpreter Assigned!";
+        html = `
+          <h2>Booking Confirmed & Interpreter Assigned</h2>
+          <p>Dear ${booking?.client?.name || "Client"},</p>
+          <p>Great news! An interpreter has been assigned to your booking for ${
+            booking?.language?.name
+          }.</p>
+          
+          <h3>Booking Details:</h3>
+          <ul>
+            <li><strong>Language:</strong> ${
+              booking?.language?.name || "N/A"
+            }</li>
+            <li><strong>Date:</strong> ${
+              booking?.date
+                ? new Date(booking.date).toLocaleDateString()
+                : "N/A"
+            }</li>
+            <li><strong>Time:</strong> ${booking?.startTime || "N/A"} - ${
+          booking?.endTime || "N/A"
+        }</li>
+            <li><strong>Interpreter:</strong> ${
+              booking?.interpreter?.name || "Details to follow"
+            }</li>
+          </ul>
+
+          <h3>Meeting Link:</h3>
+          <p>Please use the following link to join your session at the scheduled time:</p>
+          <p><a href="${booking?.meetingLink || "#"}">${
+          booking?.meetingLink || "Link will be provided if missing"
+        }</a></p>
+          <p>${
+            !booking?.meetingLink
+              ? "If the link is missing here, please expect a follow-up or contact support."
+              : ""
+          }</p>
+
+          <p>If you have any questions, please contact our support team.</p>
+          <p>Sincerely,</p>
+          <p>The Expert Language Team</p>
+        `;
+        recipientEmail = booking?.client?.email;
+        break;
       case "cancelled":
         subject = "Booking Cancelled";
         html = `
@@ -57,6 +184,15 @@ export const sendBookingStatusUpdate = async (booking, status) => {
           <p>Language: ${booking.language.name}</p>
           <p>Client: ${booking.client.name}</p>
         `;
+        // Re-evaluating recipient for "cancelled":
+        // The controller updateBookingStatus has:
+        // if (status === "cancelled") { if (booking.interpreter) { await sendBookingStatusUpdate(booking, "cancelled"); } }
+        // This means sendBookingStatusUpdate for "cancelled" is only called if an interpreter IS assigned,
+        // and in that case, the email should go to the interpreter.
+        if (status === "cancelled") {
+          // This function is called only when interpreter needs notification for cancellation
+          recipientEmail = booking?.interpreter?.email;
+        }
         break;
       case "completed":
         subject = "Booking Completed";
@@ -77,8 +213,17 @@ export const sendBookingStatusUpdate = async (booking, status) => {
               : ""
           }
         `;
+        recipientEmail = booking?.client?.email; // Client gets completion email
         break;
       default:
+        // Avoid sending generic "status updated" if it was "accepted" and handled above.
+        if (status === "accepted") {
+          // Should not happen if switch case is ordered correctly
+          console.log(
+            "Status 'accepted' already handled, not sending default email."
+          );
+          return;
+        }
         subject = "Booking Status Update";
         html = `
           <h2>Booking Status Updated</h2>
