@@ -22,6 +22,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Stripe webhook routes must be mounted before express.json() to access raw body
+app.use("/api/stripe", stripeRoutes);
+
 app.use(express.json());
 
 app.get("/api/", (req, res) => {
@@ -34,7 +38,6 @@ app.use("/api/languages", languageRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/interpreters", interpreterRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/stripe", stripeRoutes); // Mount Stripe webhook routes
 
 // Connect to MongoDB and initialize languages
 mongoose
