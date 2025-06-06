@@ -69,8 +69,30 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
 export const createBooking = asyncHandler(async (req, res) => {
   const { languageId, date, startTime, endTime } = req.body;
 
-  // Placeholder for price calculation - replace with actual logic
-  const placeholderPrice = 5000; // 5000 cents = $50.00
+  // Calculate duration and price
+  const startHour = parseInt(startTime.split(":")[0]);
+  const startMinutes = parseInt(startTime.split(":")[1]) || 0;
+  const endHour = parseInt(endTime.split(":")[0]);
+  const endMinutes = parseInt(endTime.split(":")[1]) || 0;
+
+  // Calculate duration in decimal hours
+  const durationInHours =
+    endHour + endMinutes / 60 - (startHour + startMinutes / 60);
+
+  if (durationInHours <= 0) {
+    // It's good practice to also ensure endTime is after startTime if not already handled by frontend validation
+    res
+      .status(400)
+      .json({
+        message:
+          "Booking end time must be after start time and duration must be positive.",
+      });
+    return;
+  }
+
+  const ratePerHourGBP = 39; // £39 per hour
+  const amountInGBP = durationInHours * ratePerHourGBP;
+  const amountInPence = Math.round(amountInGBP * 100); // Stripe expects amount in smallest currency unit (pence)
 
   // Create the booking document in the database first
   let booking;
@@ -84,6 +106,9 @@ export const createBooking = asyncHandler(async (req, res) => {
       status: "pending", // Overall booking status
       paymentStatus: "pending", // Initial payment status
       // stripeSessionId will be updated after session creation
+      // Optionally store the calculated amount at booking creation if desired
+      // bookingAmount: amountInPence,
+      // bookingCurrency: "gbp",
     });
   } catch (dbError) {
     console.error("Error creating booking in DB:", dbError);
@@ -106,15 +131,16 @@ export const createBooking = asyncHandler(async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "gbp", // Changed to GBP
             product_data: {
               name: "Language Service Booking",
-              // Potentially add more details like date/time if desired
               description: `Booking for ${new Date(
                 date
-              ).toLocaleDateString()} from ${startTime} to ${endTime}`,
+              ).toLocaleDateString()} from ${startTime} to ${endTime} (${durationInHours.toFixed(
+                2
+              )} hours)`,
             },
-            unit_amount: placeholderPrice,
+            unit_amount: amountInPence, // Use calculated amount in pence
           },
           quantity: 1,
         },
@@ -124,8 +150,10 @@ export const createBooking = asyncHandler(async (req, res) => {
       },
     });
 
-    // Update booking with Stripe Session ID
+    // Update booking with Stripe Session ID and final amount
     booking.stripeSessionId = session.id;
+    booking.bookingAmount = amountInPence;
+    booking.bookingCurrency = "gbp";
     await booking.save();
 
     // Respond with session ID and booking ID
