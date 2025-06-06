@@ -3,7 +3,7 @@ import Booking from "../models/Booking.js";
 import User from "../models/User.js"; // Needed for finding interpreters
 import {
   sendBookingNotification,
-  sendMeetingLinkNotification,
+  sendBookingConfirmationToClient,
 } from "../utils/email.js"; // Needed for sending notifications
 import asyncHandler from "express-async-handler";
 
@@ -15,10 +15,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export const handleStripeWebhook = asyncHandler(async (req, res) => {
-  console.log(
-    "handleStripeWebhook invoked. Headers:",
-    JSON.stringify(req.headers)
-  );
   const sig = req.headers["stripe-signature"];
   let event;
 
@@ -93,13 +89,13 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
               }
               // Notify the client
               if (populatedBooking.client && populatedBooking.client.email) {
-                await sendMeetingLinkNotification(populatedBooking);
+                await sendBookingConfirmationToClient(populatedBooking);
                 console.log(
-                  `Meeting link notification sent to client for booking ${bookingId}.`
+                  `Booking confirmation email sent to client for booking ${bookingId}.`
                 );
               } else {
                 console.error(
-                  `Client details not available for booking ${bookingId} to send meeting link.`
+                  `Client details not available for booking ${bookingId} to send booking confirmation.`
                 );
               }
             } else {
