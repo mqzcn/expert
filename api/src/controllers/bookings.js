@@ -269,7 +269,7 @@ export const updateBooking = asyncHandler(async (req, res) => {
 
   // If the status is being updated to 'accepted', send notification
   if (req.body.status === "accepted") {
-    await sendBookingStatusUpdate(updatedBooking);
+    await sendBookingStatusUpdate(updatedBooking, updatedBooking.status);
   }
 
   res.json(updatedBooking);

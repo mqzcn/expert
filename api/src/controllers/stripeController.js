@@ -1,7 +1,10 @@
 import Stripe from "stripe";
 import Booking from "../models/Booking.js";
 import User from "../models/User.js"; // Needed for finding interpreters
-import { sendBookingNotification } from "../utils/email.js"; // Needed for sending notifications
+import {
+  sendBookingNotification,
+  sendMeetingLinkNotification,
+} from "../utils/email.js"; // Needed for sending notifications
 import asyncHandler from "express-async-handler";
 
 // TODO: Replace with your actual Stripe secret key, ideally from environment variables
@@ -82,6 +85,17 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
               } else {
                 console.log(
                   `No interpreters found for language ${populatedBooking.language.name} for booking ${bookingId}.`
+                );
+              }
+              // Notify the client
+              if (populatedBooking.client && populatedBooking.client.email) {
+                await sendMeetingLinkNotification(populatedBooking);
+                console.log(
+                  `Meeting link notification sent to client for booking ${bookingId}.`
+                );
+              } else {
+                console.error(
+                  `Client details not available for booking ${bookingId} to send meeting link.`
                 );
               }
             } else {

@@ -19,7 +19,7 @@ export const sendBookingNotification = async (interpreters, booking) => {
     }
 
     const result = await resend.emails.send({
-      from: "Expert Language <onboarding@resend.dev>",
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
       to: interpreters.map((i) => i.email),
       subject: "New Translation Booking Available",
       html: `
@@ -33,7 +33,12 @@ export const sendBookingNotification = async (interpreters, booking) => {
     });
     console.log("Email sent successfully:", result);
   } catch (error) {
-    console.error("Error sending booking notification:", error);
+    console.error({
+      message: "Error sending booking notification",
+      recipientEmails: interpreters.map((i) => i.email),
+      bookingId: booking?._id,
+      errorDetails: error,
+    });
   }
 };
 
@@ -85,7 +90,7 @@ export const sendBookingStatusUpdate = async (booking, status) => {
     }
 
     const result = await resend.emails.send({
-      from: "Expert Language <onboarding@resend.dev>",
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
       to:
         status === "cancelled"
           ? booking.interpreter.email
@@ -95,14 +100,23 @@ export const sendBookingStatusUpdate = async (booking, status) => {
     });
     console.log("Status update email sent:", result);
   } catch (error) {
-    console.error("Error sending status update:", error);
+    console.error({
+      message: "Error sending status update email",
+      recipientEmail:
+        status === "cancelled"
+          ? booking?.interpreter?.email
+          : booking?.client?.email,
+      bookingId: booking?._id,
+      status: status,
+      errorDetails: error,
+    });
   }
 };
 
 export const sendMeetingLinkNotification = async (booking) => {
   try {
     const result = await resend.emails.send({
-      from: "Expert Language <onboarding@resend.dev>",
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
       to: booking.client.email,
       subject: "Translation Session Meeting Link",
       html: `
@@ -118,6 +132,11 @@ export const sendMeetingLinkNotification = async (booking) => {
     });
     console.log("Meeting link email sent:", result);
   } catch (error) {
-    console.error("Error sending meeting link:", error);
+    console.error({
+      message: "Error sending meeting link email",
+      recipientEmail: booking?.client?.email,
+      bookingId: booking?._id,
+      errorDetails: error,
+    });
   }
 };
