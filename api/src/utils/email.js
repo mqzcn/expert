@@ -19,7 +19,7 @@ export const sendBookingNotification = async (interpreters, booking) => {
     }
 
     const result = await resend.emails.send({
-      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      from: "Expert Language <onboarding@resend.dev>",
       to: interpreters.map((i) => i.email),
       subject: "New Translation Booking Available",
       html: `
@@ -90,7 +90,7 @@ export const sendBookingStatusUpdate = async (booking, status) => {
     }
 
     const result = await resend.emails.send({
-      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      from: "Expert Language <onboarding@resend.dev>",
       to:
         status === "cancelled"
           ? booking.interpreter.email
@@ -116,7 +116,7 @@ export const sendBookingStatusUpdate = async (booking, status) => {
 export const sendMeetingLinkNotification = async (booking) => {
   try {
     const result = await resend.emails.send({
-      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      from: "Expert Language <onboarding@resend.dev>",
       to: booking.client.email,
       subject: "Translation Session Meeting Link",
       html: `
