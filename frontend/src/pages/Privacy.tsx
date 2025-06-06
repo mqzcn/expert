@@ -84,11 +84,8 @@ However, the internet cannot be guaranteed 100% secure.`,
       },
       {
         question: "How to Access, Modify, Delete, or Challenge Data",
-        answer: `To exercise your GDPR rights, please contact our data protection officer at:
-__________
-________________________________________
-________________________________________
-________________________________________`,
+        answer: `To exercise your GDPR rights, please contact support:
+expertlanguageinfo@gmail.com`,
       },
       {
         question: "How to Opt-Out of Data Collection",
@@ -108,11 +105,8 @@ ________________________________________`,
       },
       {
         question: "Contact Information",
-        answer: `For questions or complaints, contact our data protection officer at:
-__________
-________________________________________
-________________________________________
-________________________________________`,
+        answer: `For questions or complaints, contact support:
+expertlanguageinfo@gmail.com`,
       },
     ],
   },
