@@ -21,6 +21,7 @@ import Terms from "./pages/Terms";
 import BookingSuccess from "./pages/BookingSuccess";
 import BookingFailure from "./pages/BookingFailure";
 import Privacy from "./pages/Privacy";
+import Cookies from "./pages/Cookies";
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -97,6 +98,7 @@ export default function App() {
               <Route path="/careers" element={<Careers />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/cookies" element={<Cookies />} />
             </Routes>
           </main>
           <Footer />
