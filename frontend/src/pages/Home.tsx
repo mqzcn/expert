@@ -31,7 +31,7 @@ export default function Home() {
         <div className="mt-20 grid grid-cols-1 gap-16 sm:grid-cols-2 lg:grid-cols-3 items-end">
           <div className="text-center flex flex-col items-center">
             <img
-              src="src/images/hello.svg"
+              src="src/images/hello.png"
               alt="Professional Interpreters Icon"
               className="mx-auto mb-4"
             />
@@ -40,12 +40,12 @@ export default function Home() {
             </h3>
             <p className="mt-4 text-base leading-7 text-gray-600 min-h-24">
               Our interpreters are certified professionals with extensive
-              experience in their respective languages.
+              experience in their resplanguages.
             </p>
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="frontend/src/images/video.svg"
+              src="src/images/video.svg"
               alt="Real-Time Translation Icon"
               className="mx-auto mb-4"
             />
