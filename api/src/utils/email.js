@@ -207,8 +207,6 @@ export const sendBookingStatusUpdate = async (booking, status) => {
             booking.financials
               ? `
             <p>Duration: ${booking.financials.hours} hours</p>
-            <p>Rate: £${booking.financials.rate}/hour</p>
-            <p>Total Amount: £${booking.financials.amount}</p>
           `
               : ""
           }
