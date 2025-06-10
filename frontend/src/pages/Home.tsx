@@ -45,7 +45,7 @@ export default function Home() {
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="src/images/video.svg"
+              src="frontend/src/images/video.svg"
               alt="Real-Time Translation Icon"
               className="mx-auto mb-4"
             />
