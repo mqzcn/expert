@@ -12,7 +12,7 @@ export default function Home() {
           services in multiple languages.
         </p>
         <img
-          src="public/images/map.svg"
+          src="images/map.svg"
           alt="Feature Banner"
           className="mx-auto w-1/2 mt-10"
         />
@@ -33,7 +33,7 @@ export default function Home() {
         <div className="mt-20 grid grid-cols-1 gap-16 sm:grid-cols-2 lg:grid-cols-3 items-end">
           <div className="text-center flex flex-col items-center">
             <img
-              src="public/images/hello.svg"
+              src="images/hello.svg"
               alt="Professional Interpreters Icon"
               className="mx-auto mb-4"
             />
@@ -47,7 +47,7 @@ export default function Home() {
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="public/images/video.svg"
+              src="images/video.svg"
               alt="Real-Time Translation Icon"
               className="mx-auto mb-4"
             />
@@ -61,7 +61,7 @@ export default function Home() {
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="public/images/world.svg"
+              src="images/world.svg"
               alt="Multiple Languages Icon"
               className="mx-auto mb-4"
             />
