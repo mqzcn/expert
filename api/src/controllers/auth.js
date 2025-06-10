@@ -276,3 +276,27 @@ export const setUserAvailability = asyncHandler(async (req, res) => {
     isAvailable: user.isAvailable,
   });
 });
+
+export const getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select(
+    "-password -passwordResetToken -passwordResetExpires"
+  );
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      isAvailable: user.isAvailable, // Include isAvailable if relevant for 'me' endpoint
+      // Include other fields as necessary, e.g., languages for interpreters
+      languages: user.languages,
+      hourlyRate: user.hourlyRate,
+      // availability (schedule) might be too large, fetch separately if needed
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found"); // Should ideally not happen if protect middleware ran
+  }
+});
