@@ -42,6 +42,109 @@ export const sendBookingNotification = async (interpreters, booking) => {
   }
 };
 
+export const sendPasswordChangeConfirmationEmail = async (
+  userEmail,
+  userName
+) => {
+  try {
+    const result = await resend.emails.send({
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      to: userEmail,
+      subject: "Expert Language - Your Password Has Been Changed",
+      html: `
+        <h2>Password Successfully Changed</h2>
+        <p>Hello ${userName},</p>
+        <p>This email confirms that the password for your Expert Language account has been successfully changed.</p>
+        <p>If you did not make this change, please contact our support team immediately.</p>
+        <p>Best regards,</p>
+        <p>The Expert Language Team</p>
+      `,
+    });
+    console.log(
+      "Password change confirmation email sent successfully:",
+      result
+    );
+    if (result.error) {
+      console.error(
+        "Resend error when sending password change confirmation email:",
+        result.error
+      );
+    }
+  } catch (error) {
+    console.error({
+      message: "Error sending password change confirmation email",
+      recipientEmail: userEmail,
+      errorDetails: error,
+    });
+  }
+};
+
+export const sendPasswordResetEmail = async (userEmail, token, userName) => {
+  try {
+    const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
+    const resetLink = `${frontendURL}/reset-password?token=${token}`;
+
+    const result = await resend.emails.send({
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      to: userEmail,
+      subject: "Expert Language - Password Reset Request",
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>Hello ${userName},</p>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <p><a href="${resetLink}">Reset Password</a></p>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you did not request this, please ignore this email.</p>
+        <p>Best regards,</p>
+        <p>The Expert Language Team</p>
+      `,
+    });
+    console.log("Password reset email sent successfully:", result);
+    if (result.error) {
+      console.error(
+        "Resend error when sending password reset email:",
+        result.error
+      );
+    }
+  } catch (error) {
+    console.error({
+      message: "Error sending password reset email",
+      recipientEmail: userEmail,
+      errorDetails: error,
+    });
+  }
+};
+
+export const sendWelcomeEmail = async (userEmail, userName) => {
+  try {
+    const result = await resend.emails.send({
+      from: "Expert Language <noreply@expertlanguage.co.uk>",
+      to: userEmail,
+      subject: "Welcome to Expert Language!",
+      html: `
+        <h2>Welcome to Expert Language, ${userName}!</h2>
+        <p>Thank you for signing up. We're excited to have you on board.</p>
+        <p>You can now log in to your account and explore our services.</p>
+        <p>If you have any questions, feel free to contact our support team.</p>
+        <p>Best regards,</p>
+        <p>The Expert Language Team</p>
+      `,
+    });
+    console.log("Welcome email sent successfully:", result);
+    if (result.error) {
+      console.error("Resend error when sending welcome email:", result.error);
+    }
+  } catch (error) {
+    console.error({
+      message: "Error sending welcome email",
+      recipientEmail: userEmail,
+      errorDetails: error,
+    });
+    // Optionally rethrow or handle more specifically if needed
+    // For now, just logging as per other functions
+  }
+};
+
 export const sendBookingConfirmationToClient = async (booking) => {
   try {
     if (!booking || !booking.client || !booking.client.email) {

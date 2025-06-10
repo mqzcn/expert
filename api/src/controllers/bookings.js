@@ -81,12 +81,10 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   if (durationInHours <= 0) {
     // It's good practice to also ensure endTime is after startTime if not already handled by frontend validation
-    res
-      .status(400)
-      .json({
-        message:
-          "Booking end time must be after start time and duration must be positive.",
-      });
+    res.status(400).json({
+      message:
+        "Booking end time must be after start time and duration must be positive.",
+    });
     return;
   }
 
@@ -191,6 +189,7 @@ export const createBooking = asyncHandler(async (req, res) => {
   // const interpreters = await User.find({
   //   role: "interpreter",
   //   languages: languageId,
+  //   isAvailable: true, // Add this condition
   // });
   // const populatedBooking = await Booking.findById(booking._id)
   //   .populate("client", "name email")

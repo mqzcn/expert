@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isAvailable: {
+      // New field
+      type: Boolean,
+      default: true,
+    },
     availability: [
       {
         date: Date,
@@ -47,6 +52,8 @@ const userSchema = new mongoose.Schema(
         ],
       },
     ],
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   {
     timestamps: true,

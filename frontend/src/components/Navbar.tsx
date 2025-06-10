@@ -66,7 +66,13 @@ export default function Navbar() {
                 {token ? (
                   <div className="flex items-center space-x-4">
                     <span className="text-sm text-gray-700">
-                      Logged in as {name}
+                      Logged in as{" "}
+                      <Link
+                        to="/account"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        {name}
+                      </Link>
                     </span>
                     <button
                       onClick={handleLogout}

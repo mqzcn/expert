@@ -3,10 +3,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import CookieBanner from "./components/CookieBanner";
+import CookieBanner from "./components/CookieBanner"; // Import the new component
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AccountManagement from "./pages/AccountManagement"; // Add this
 import BookingForm from "./pages/BookingForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterpreterDashboard from "./pages/InterpreterDashboard";
@@ -36,6 +39,16 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute>
+                    <AccountManagement />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/book"
                 element={
@@ -102,7 +115,7 @@ export default function App() {
               <Route path="/cookies" element={<Cookies />} />
             </Routes>
           </main>
-          <CookieBanner />
+          <CookieBanner /> {/* Add the CookieBanner here */}
           <Footer />
           <Toaster position="top-right" />
         </div>
