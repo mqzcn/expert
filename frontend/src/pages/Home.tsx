@@ -1,3 +1,5 @@
+import * as hello from "../images/hello.png";
+
 export default function Home() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -10,7 +12,7 @@ export default function Home() {
           services in multiple languages.
         </p>
         <img
-          src="src/images/map.svg"
+          src="public/images/map.svg"
           alt="Feature Banner"
           className="mx-auto w-1/2 mt-10"
         />
@@ -31,7 +33,7 @@ export default function Home() {
         <div className="mt-20 grid grid-cols-1 gap-16 sm:grid-cols-2 lg:grid-cols-3 items-end">
           <div className="text-center flex flex-col items-center">
             <img
-              src="src/images/hello.png"
+              src="public/images/hello.svg"
               alt="Professional Interpreters Icon"
               className="mx-auto mb-4"
             />
@@ -45,7 +47,7 @@ export default function Home() {
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="src/images/video.svg"
+              src="public/images/video.svg"
               alt="Real-Time Translation Icon"
               className="mx-auto mb-4"
             />
@@ -59,7 +61,7 @@ export default function Home() {
           </div>
           <div className="text-center flex flex-col items-center">
             <img
-              src="src/images/world.svg"
+              src="public/images/world.svg"
               alt="Multiple Languages Icon"
               className="mx-auto mb-4"
             />
