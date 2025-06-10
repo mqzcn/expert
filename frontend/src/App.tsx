@@ -8,7 +8,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword"; // Add this
+import ResetPassword from "./pages/ResetPassword";
+import AccountManagement from "./pages/AccountManagement"; // Add this
 import BookingForm from "./pages/BookingForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterpreterDashboard from "./pages/InterpreterDashboard";
@@ -40,6 +41,14 @@ export default function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute>
+                    <AccountManagement />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/book"
                 element={

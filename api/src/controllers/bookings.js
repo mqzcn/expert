@@ -191,6 +191,7 @@ export const createBooking = asyncHandler(async (req, res) => {
   // const interpreters = await User.find({
   //   role: "interpreter",
   //   languages: languageId,
+  //   isAvailable: true, // Add this condition
   // });
   // const populatedBooking = await Booking.findById(booking._id)
   //   .populate("client", "name email")

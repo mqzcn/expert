@@ -175,3 +175,97 @@ export const resetPassword = asyncHandler(async (req, res) => {
     }
   }
 });
+
+export const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    // Basic email update. Consider adding email uniqueness check for other users later.
+    if (req.body.email && req.body.email !== user.email) {
+        // Optional: Check if new email is already taken by another user
+        // const emailExists = await User.findOne({ email: req.body.email, _id: { $ne: user._id } });
+        // if (emailExists) {
+        //   res.status(400);
+        //   throw new Error('Email already in use by another account.');
+        // }
+        user.email = req.body.email;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      isActive: updatedUser.isActive,
+      // Do not send token here unless it's re-issued
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    res.status(400);
+    throw new Error("Current password and new password are required.");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
+  const isMatch = await user.matchPassword(currentPassword);
+
+  if (!isMatch) {
+    res.status(401); // Unauthorized or 400 Bad Request
+    throw new Error("Incorrect current password.");
+  }
+
+  user.password = newPassword; // Pre-save hook will hash
+  await user.save();
+
+  // Optional: Send password change confirmation email here (deferred for this task)
+  // sendPasswordChangeConfirmationEmail(user.email, user.name).catch(err => console.error('Failed to send password change confirmation email:', err));
+
+  res.status(200).json({ message: "Password updated successfully." });
+});
+
+export const setUserAvailability = asyncHandler(async (req, res) => {
+  const { isAvailable } = req.body;
+
+  // Validate isAvailable input
+  if (typeof isAvailable !== 'boolean') {
+    res.status(400);
+    throw new Error("Invalid 'isAvailable' value. It must be true or false.");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
+  if (user.role !== 'interpreter') {
+    res.status(403);
+    throw new Error('User is not an interpreter. Cannot set availability.');
+  }
+
+  user.isAvailable = isAvailable;
+  await user.save();
+
+  res.json({
+    _id: user._id,
+    name: user.name, // Included for context, can be removed
+    isAvailable: user.isAvailable
+  });
+});

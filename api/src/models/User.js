@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isAvailable: { // New field
+      type: Boolean,
+      default: true,
+    },
     availability: [
       {
         date: Date,
