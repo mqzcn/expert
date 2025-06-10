@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 
@@ -116,6 +116,14 @@ export default function Login() {
                   {errors.password.message}
                 </p>
               )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end mt-1">
+            <div className="text-sm">
+              <Link to="/forgot-password" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                Forgot password?
+              </Link>
             </div>
           </div>
 
