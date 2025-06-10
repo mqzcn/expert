@@ -42,7 +42,7 @@ export default function Home() {
             </h3>
             <p className="mt-4 text-base leading-7 text-gray-600 min-h-24">
               Our interpreters are certified professionals with extensive
-              experience in their resplanguages.
+              experience in their respective languages.
             </p>
           </div>
           <div className="text-center flex flex-col items-center">
