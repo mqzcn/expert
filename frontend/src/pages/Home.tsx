@@ -6,8 +6,14 @@ export default function Home() {
           Expert Language Translation Services
         </h1>
         <p className="mt-6 text-lg leading-8 text-gray-600">
-          Connect with professional interpreters for real-time translation services in multiple languages.
+          Connect with professional interpreters for real-time translation
+          services in multiple languages.
         </p>
+        <img
+          src="https://via.placeholder.com/1200x400?text=Feature+Banner"
+          alt="Feature Banner"
+          className="mx-auto w-full mt-10"
+        />
         <div className="mt-10">
           <a
             href="/register"
@@ -24,27 +30,45 @@ export default function Home() {
         </h2>
         <div className="mt-20 grid grid-cols-1 gap-16 sm:grid-cols-2 lg:grid-cols-3">
           <div className="text-center">
+            <img
+              src="https://via.placeholder.com/100x100?text=Icon1"
+              alt="Professional Interpreters Icon"
+              className="mx-auto mb-4"
+            />
             <h3 className="mt-3 text-lg font-semibold leading-8 tracking-tight text-gray-900">
               Professional Interpreters
             </h3>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Our interpreters are certified professionals with extensive experience in their respective languages.
+              Our interpreters are certified professionals with extensive
+              experience in their respective languages.
             </p>
           </div>
           <div className="text-center">
+            <img
+              src="https://via.placeholder.com/100x100?text=Icon2"
+              alt="Real-Time Translation Icon"
+              className="mx-auto mb-4"
+            />
             <h3 className="mt-3 text-lg font-semibold leading-8 tracking-tight text-gray-900">
               Real-Time Translation
             </h3>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Get instant access to live translation services through video conferencing platforms.
+              Get instant access to live translation services through video
+              conferencing platforms.
             </p>
           </div>
           <div className="text-center">
+            <img
+              src="https://via.placeholder.com/100x100?text=Icon3"
+              alt="Multiple Languages Icon"
+              className="mx-auto mb-4"
+            />
             <h3 className="mt-3 text-lg font-semibold leading-8 tracking-tight text-gray-900">
               Multiple Languages
             </h3>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Choose from a wide range of languages and dialects to meet your translation needs.
+              Choose from a wide range of languages and dialects to meet your
+              translation needs.
             </p>
           </div>
         </div>
