@@ -223,8 +223,7 @@ const AccountManagement: React.FC = () => {
           </div>
         </form>
       </div>
-      </div>
-      {/* Holiday mode section will be added later */}
+      {/* Holiday mode section will be added later, extra div removed */}
 
       {/* Availability Toggle Section - Only for Interpreters */}
       {userData && userData.role === 'interpreter' && (

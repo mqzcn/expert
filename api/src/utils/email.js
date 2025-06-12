@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import dotenv from "dotenv";
+import { getAdminEmails } from './userUtils.js'; // New import
 
 // Ensure environment variables are loaded
 dotenv.config();
@@ -39,6 +40,58 @@ export const sendBookingNotification = async (interpreters, booking) => {
       bookingId: booking?._id,
       errorDetails: error,
     });
+  }
+};
+
+export const sendContactFormEmailToAdmins = async ({ senderName, senderEmail, subject, message }) => {
+  try {
+    const adminEmails = await getAdminEmails();
+
+    if (!adminEmails || adminEmails.length === 0) {
+      console.warn(`No admin emails found to send contact message. Contact form submission from ${senderEmail} will not be delivered to admins.`);
+      // Optionally, you could send to a fallback default email if configured in .env
+      // For example: if (process.env.FALLBACK_ADMIN_EMAIL) adminEmails.push(process.env.FALLBACK_ADMIN_EMAIL);
+      // If still no recipients, then return.
+      // Check again in case fallback was added (though not implemented here for simplicity)
+      if (!adminEmails || adminEmails.length === 0) return;
+    }
+
+    const emailHtml = `
+      <h2>New Contact Form Submission</h2>
+      <p>You have received a new message from the website contact form:</p>
+      <ul>
+        <li><strong>Name:</strong> ${senderName}</li>
+        <li><strong>Email:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></li>
+        <li><strong>Subject:</strong> ${subject}</li>
+      </ul>
+      <h3>Message:</h3>
+      <div style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;">
+        <p style="white-space: pre-wrap;">${message}</p>
+      </div>
+      <hr>
+      <p><small>This is an automated message from the contact form.</small></p>
+    `;
+
+    const result = await resend.emails.send({
+      from: "Contact Form <noreply@expertlanguage.co.uk>",
+      to: adminEmails,
+      subject: `Contact Form: ${subject}`,
+      html: emailHtml,
+    });
+
+    console.log("Contact form email sent to admins successfully:", result);
+    if (result.error) {
+      console.error("Resend error when sending contact form to admins:", result.error);
+    }
+  } catch (error) {
+    console.error({
+      message: "Error sending contact form email to admins",
+      errorDetails: error,
+      // Only log partial form data for privacy, especially if message can be very long or sensitive
+      formData: { senderName, senderEmail, subjectLength: subject?.length, messageLength: message?.length },
+    });
+    // Decide if this function should throw to let the controller know, or handle silently.
+    // For now, it logs and doesn't throw.
   }
 };
 

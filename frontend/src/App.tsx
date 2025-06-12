@@ -26,6 +26,7 @@ import BookingSuccess from "./pages/BookingSuccess";
 import BookingFailure from "./pages/BookingFailure";
 import Privacy from "./pages/Privacy";
 import Cookies from "./pages/Cookies";
+import ContactUs from "./pages/ContactUs"; // Add this
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -113,6 +114,7 @@ export default function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/cookies" element={<Cookies />} />
+              <Route path="/contact" element={<ContactUs />} />
             </Routes>
           </main>
           <CookieBanner /> {/* Add the CookieBanner here */}
